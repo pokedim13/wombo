@@ -1,6 +1,7 @@
 import httpx
 import re
 import io
+import time
 
 from PIL import Image
 from wombo.urls import urls, auth_key_headers, headers_gen, check_headers
@@ -73,6 +74,21 @@ class Dream:
             else:
                 return False
         return result
+    
+    def generate(self, text: str, style: int = 84, gif: bool = False):
+        """Generate image"""
+        task = self.create_task(text=text, style=style)
+        time.sleep(2)
+        for _ in range(100):
+            task = self.check_task(task_id=task.id, only_bool=False)
+            if task.photo_url_list and task.state != "generating":
+                if gif:
+                    res = self.gif(task.photo_url_list)
+                else:
+                    res = task
+                break
+            time.sleep(2)
+        return res
     
     def gif_creating(self, frames: list, duration: int = 400) -> io.BytesIO:
 

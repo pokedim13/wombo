@@ -76,8 +76,23 @@ class AsyncDream:
             else:
                 return False
         return result
+    
+    async def generate(self, text: str, style: int = 84, gif: bool = False):
+        """Generate image"""
+        task = await self.create_task(text=text, style=style)
+        await asyncio.sleep(2)
+        for _ in range(10):
+            task = await self.check_task(task_id=task.id, only_bool=False)
+            if task.photo_url_list and task.state != "generating":
+                if gif:
+                    res = await self.gif(task.photo_url_list)
+                else:
+                    res = task
+                break
+            await asyncio.sleep(2)
+        return res
 
-
+    # ============================================================================================= # 
     def gif_creating(self, frames: list, duration: int = 400) -> io.BytesIO:
         result = io.BytesIO()
         frames[0].save(
@@ -106,15 +121,8 @@ class AsyncDream:
     
 async def main():
     dream = AsyncDream()
-    task = await dream.create_task(input("Промт: "))
-    while True:
-        if await dream.check_task(task.id):
-            break
-        await asyncio.sleep(3)
-    task = await dream.check_task(task.id, False)
-    with open("file.gif", "wb") as f:
-        res = await dream.gif(task.photo_url_list)
-        f.write(res.getvalue())
+    task = await dream.generate("Anime waifu in bikini")
+    print(task)
     # frames = await dream.get_stage_task(task)
 
 
