@@ -12,8 +12,9 @@ from wombo.base_dream import BaseDream
 
 
 class AsyncDream(BaseDream):
-    def __init__(self) -> None:
+    def __init__(self, out_msg: str = "") -> None:
         self.client = httpx.AsyncClient()
+        self.out_msg: str = out_msg
 
     async def _get_js_filename(self) -> str:
         """Get name JS file, from extract Google Key"""
@@ -80,16 +81,28 @@ class AsyncDream(BaseDream):
         result = CheckTask.parse_obj(result)
         return bool(result.photo_url_list) if only_bool else result
 
-    async def generate(self, text: str, style: int = 84, gif: bool = False):
+    async def generate(self, text: str, 
+                       style: int = 84, 
+                       gif: bool = False, 
+                       timeout: int = 60,
+                       check_for: int = 3):
         """Generate image"""
         task = await self.create_task(text=text, style=style)
         await asyncio.sleep(2)
+        timeout -= 2
         for _ in range(10):
             task = await self.check_task(task_id=task.id, only_bool=False)
             if task.photo_url_list and task.state != "generating":
                 res = await self.gif(task.photo_url_list) if gif else task
                 break
-            await asyncio.sleep(2)
+            if timeout <= 0:
+                raise TimeoutError(self.out_msg)
+            elif timeout < check_for:
+                await asyncio.sleep(timeout)
+                timeout -= timeout
+            else:
+                await asyncio.sleep(check_for)
+                timeout -= check_for
         return res
 
     # ============================================================================================= #

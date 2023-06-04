@@ -1,19 +1,20 @@
 import typing
-import time
 import re
 import io
 
 import httpx
 from PIL import Image
 
+from time import sleep
 from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
 from wombo.models import CreateTask, CheckTask
 from wombo.base_dream import BaseDream
 
 
 class Dream(BaseDream):
-    def __init__(self) -> None:
+    def __init__(self, out_msg: str = "") -> None:
         self.client = httpx.Client()
+        self.out_msg = out_msg
 
     def _get_js_filename(self) -> str:
         """Получает имя JS файла, откуда извлекаем Google Key"""
@@ -73,16 +74,28 @@ class Dream(BaseDream):
         result = CheckTask.parse_obj(response.json())
         return bool(result.photo_url_list) if only_bool else result
 
-    def generate(self, text: str, style: int = 84, gif: bool = False):
+    async def generate(self, text: str, 
+                       style: int = 84, 
+                       gif: bool = False, 
+                       timeout: int = 60,
+                       check_for: int = 3):
         """Generate image"""
-        task = self.create_task(text=text, style=style)
-        time.sleep(2)
-        for _ in range(100):
+        task = await self.create_task(text=text, style=style)
+        sleep(2)
+        timeout -= 2
+        for _ in range(10):
             task = self.check_task(task_id=task.id, only_bool=False)
             if task.photo_url_list and task.state != "generating":
                 res = self.gif(task.photo_url_list) if gif else task
                 break
-            time.sleep(2)
+            if timeout <= 0:
+                raise TimeoutError(self.out_msg)
+            elif timeout < check_for:
+                sleep(timeout)
+                timeout -= timeout
+            else:
+                sleep(check_for)
+                timeout -= check_for
         return res
 
     async def gif(self, url_list: typing.List) -> io.BytesIO:
