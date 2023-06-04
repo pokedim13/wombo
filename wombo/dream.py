@@ -1,3 +1,4 @@
+import typing
 import time
 import re
 import io
@@ -5,11 +6,12 @@ import io
 import httpx
 from PIL import Image
 
-from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
-from wombo.models import CreateTask, CheckTask
+from .urls import urls, headers_gen, check_headers, auth_key_headers
+from .models import CreateTask, CheckTask
+from .base_dream import BaseDream
 
 
-class Dream:
+class Dream(BaseDream):
     def __init__(self) -> None:
         self.client = httpx.Client()
 
@@ -68,15 +70,8 @@ class Dream:
         img_check_url = f"https://paint.api.wombo.ai/api/v2/tasks/{task_id}"
 
         response = self.client.get(img_check_url, headers=check_headers, timeout=10)
-        result = response.json()
-
-        result = CheckTask.parse_obj(result)
-        if only_bool:
-            if result.photo_url_list:
-                return True
-            else:
-                return False
-        return result
+        result = CheckTask.parse_obj(response.json())
+        return bool(result.photo_url_list) if only_bool else result
 
     def generate(self, text: str, style: int = 84, gif: bool = False):
         """Generate image"""
@@ -85,33 +80,16 @@ class Dream:
         for _ in range(100):
             task = self.check_task(task_id=task.id, only_bool=False)
             if task.photo_url_list and task.state != "generating":
-                if gif:
-                    res = self.gif(task.photo_url_list)
-                else:
-                    res = task
+                res = self.gif(task.photo_url_list) if gif else task
                 break
             time.sleep(2)
         return res
 
-    def gif_creating(self, frames: list, duration: int = 400) -> io.BytesIO:
-        result = io.BytesIO()
-        frames[0].save(
-            result,
-            save_all=True,
-            append_images=frames[1:],  # Срез который игнорирует первый кадр.
-            format="GIF",
-            duration=duration,
-            loop=1,
-        )
-        return result
-
-    async def gif(self, url_list: list) -> io.BytesIO:
+    async def gif(self, url_list: typing.List) -> io.BytesIO:
         """Creating a streaming object with gif"""
         urls = [self.client.get(url) for url in url_list]
         frames = [Image.open(io.BytesIO(url.content)) for url in urls]
-        result = self.gif_creating(frames)
-        result = self.gif_creating(frames)
-        return result
+        return self.save_frames_as_gif(frames)
 
 
 if __name__ == "__main__":

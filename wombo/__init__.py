@@ -1,2 +1,8 @@
-from wombo.dream import Dream
-from wombo.async_dream import AsyncDream
+"""
+    Wombo dream AI library.
+"""
+
+from .dream import Dream
+from .async_dream import AsyncDream
+
+__all__ = ["Dream", "AsyncDream"]
