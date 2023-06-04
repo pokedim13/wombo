@@ -6,11 +6,12 @@ import asyncio
 import httpx
 from PIL import Image
 
-from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
-from wombo.models import CreateTask, CheckTask
+from .urls import urls, headers_gen, check_headers, auth_key_headers
+from .models import CreateTask, CheckTask
+from .base_dream import BaseDream
 
 
-class AsyncDream:
+class AsyncDream(BaseDream):
     def __init__(self) -> None:
         self.client = httpx.AsyncClient()
 
@@ -77,12 +78,7 @@ class AsyncDream:
         result = response.json()
 
         result = CheckTask.parse_obj(result)
-        if only_bool:
-            if result.photo_url_list:
-                return True
-            else:
-                return False
-        return result
+        return bool(result.photo_url_list) if only_bool else result
 
     async def generate(self, text: str, style: int = 84, gif: bool = False):
         """Generate image"""
@@ -91,37 +87,23 @@ class AsyncDream:
         for _ in range(10):
             task = await self.check_task(task_id=task.id, only_bool=False)
             if task.photo_url_list and task.state != "generating":
-                if gif:
-                    res = await self.gif(task.photo_url_list)
-                else:
-                    res = task
+                res = await self.gif(task.photo_url_list) if gif else task
                 break
             await asyncio.sleep(2)
         return res
 
     # ============================================================================================= #
-    def gif_creating(self, frames: list, duration: int = 400) -> io.BytesIO:
-        result = io.BytesIO()
-        frames[0].save(
-            result,
-            save_all=True,
-            append_images=frames[1:],  # Срез который игнорирует первый кадр.
-            format="GIF",
-            duration=duration,
-            loop=1,
-        )
-        return result
 
-    async def gif(self, url_list: list, thread: bool = True) -> io.BytesIO:
+    async def gif(self, url_list: typing.List, thread: bool = True) -> io.BytesIO:
         """Creating a streaming object with gif"""
         tasks = [self.client.get(url) for url in url_list]
         res = await asyncio.gather(*tasks)
         frames = [Image.open(io.BytesIO(url.content)) for url in res]
-        if thread:
-            result = await asyncio.to_thread(self.gif_creating, (frames))
-        else:
-            result = self.gif_creating(frames)
-        return result
+        return (
+            await asyncio.to_thread(self.save_frames_as_gif, (frames))
+            if thread
+            else self.save_frames_as_gif(frames)
+        )
 
 
 async def main():

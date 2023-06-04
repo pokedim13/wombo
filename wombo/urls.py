@@ -1,3 +1,9 @@
+"""
+	URLs for calling APIs.
+"""
+
+from typing import Dict
+
 urls = {
     "js_filename": "https://dream.ai/create",
     "auth_key": "https://identitytoolkit.googleapis.com/v1/accounts:signUp",
@@ -38,7 +44,7 @@ check_headers = {
 }
 
 
-def headers_gen(auth_key):
+def headers_gen(auth_key: str) -> Dict:
     return {
         "authority": "paint.api.wombo.ai",
         "accept": "*/*",
