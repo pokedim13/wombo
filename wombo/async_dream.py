@@ -6,9 +6,9 @@ import asyncio
 import httpx
 from PIL import Image
 
-from .urls import urls, headers_gen, check_headers, auth_key_headers
-from .models import CreateTask, CheckTask
-from .base_dream import BaseDream
+from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
+from wombo.models import CreateTask, CheckTask
+from wombo.base_dream import BaseDream
 
 
 class AsyncDream(BaseDream):
@@ -109,8 +109,9 @@ class AsyncDream(BaseDream):
 async def main():
     dream = AsyncDream()
     task = await dream.generate("Anime waifu in bikini")
-    print(task)
-    # frames = await dream.get_stage_task(task)
+    with open("file.gif", 'wb') as f:
+        gif = await dream.gif(task.photo_url_list)
+        f.write(gif.getvalue())
 
 
 if __name__ == "__main__":
