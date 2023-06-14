@@ -28,3 +28,6 @@ class BaseDream:
         )
 
         return result
+    
+    def generate(self):
+        raise NotImplementedError("Method not Implemented")
