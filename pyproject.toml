@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wombo"
-version = "0.1.7"
+version = "0.1.8"
 description = "Dream api"
 authors = ["Aleksey Baev <skinxedovich@vk.com>"]
 license = "mit"
