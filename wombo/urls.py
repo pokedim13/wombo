@@ -60,5 +60,5 @@ def headers_gen(auth_key: str) -> Dict:
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "cross-site",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 YaBrowser/23.3.1.895 Yowser/2.5 Safari/537.36",
-        "x-app-version": "WEB-1.90.1",
+        "x-app-version": "WEB-2.0.0",
     }
