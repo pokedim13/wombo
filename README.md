@@ -1,7 +1,11 @@
-<h1 align="center">Hi there, I'm <a href="https://github.com/pokedim13/WOMBO" target="_blank">Wombo</a> 
+<h1 align="center">Hi there, I'm</h1>
+
+
+<a href="https://github.com/pokedim13/WOMBO" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/WomboLogo.svg"/>
+</a>
 
 ### I am a module for using wombo dream ai (neural network of image generation)
-
 
 <details>
 <summary style="font-size: 36px">Mini Documentation</summary>
@@ -23,10 +27,12 @@ from wombo import Dream # sync
 
 - since all actions are the same in both versions, I will consider only one module, namely the asynchronous
 ```
+from wombo.base_models.styles import Style
+
 dream = AsyncDream()
-task = await dream.create_task(prompt: str, style: int)
+task = await dream.create_task(prompt: str, style: Style)
 ```
-- The list of styles will be available via github
+- The list of styles is in Style(Enum) your IDE will tell you to find the desired style
 
 </details>
 
@@ -54,8 +60,6 @@ task = await dream.check_task(task.id, False)
 ```
 gif = await dream.gif(task.photo_url_list)
 
-gif = await dream.gif(task.photo_url_list, thread=False)
-# Used if you don't want to use an asynchronous thread.
 # to generate a gif, it is true since the generation is quite long
 # Generation in the thread is not available for the synchronous library
 ```
@@ -67,11 +71,28 @@ gif = await dream.gif(task.photo_url_list, thread=False)
 <details>
 <summary style="font-size: 24px; padding-left: 6vh;">Generate</summary>
 
-- 1 command to receive, reply immediately. without checks via check_task()
-```
-gif = await dream.generate(taxt:str, syle: int, gif: bool)
+- one command to receive, reply immediately. without checks via check_task()
+
+
+<details>
+<summary style="font-size: 15px; padding-left: 6vh;">Generate Image</summary>
 
 ```
+image = await dream.generate_image(taxt:str, syle: Style)
+```
+- Return io.BytesIO
+</details>
+
+
+<details>
+<summary style="font-size: 15px; padding-left: 6vh;">Generate Image</summary>
+
+```
+gif = await dream.generate_gif(taxt:str, syle: Style)
+```
+- Return io.BytesIO
+</details>
+
 
 </details>
 </details>
