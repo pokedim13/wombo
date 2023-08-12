@@ -84,31 +84,27 @@ class AsyncDream(BaseDream):
         result = CheckTask.parse_obj(response.json())
         return bool(result.photo_url_list) if only_bool else result
 
-    async def generate(self, text: str, 
-                       style: int = 84, 
-                       gif: bool = False, 
-                       timeout: int = 60,
-                       check_for: int = 3):
+    async def generate_image(
+            self,
+            text: str,
+            style: Style = Style.buliojourney_v2,
+            timeout: int = 60,
+            check_for: int = 3
+    ) -> CheckTask:
         """
         Generate image
         """
         task = await self.create_task(text=text, style=style)
-        await asyncio.sleep(2)
-        timeout -= 2
-        for _ in range(10):
-            task = await self.check_task(task_id=task.id, only_bool=False)
-            if task.photo_url_list and task.state != "generating":
-                res = await self.gif(task.photo_url_list) if gif else task
-                break
-            if timeout <= 0:
-                raise TimeoutError(self.out_msg)
-            elif timeout < check_for:
-                await asyncio.sleep(timeout)
-                timeout -= timeout
-            else:
-                await asyncio.sleep(check_for)
-                timeout -= check_for
-        return res
+
+        while timeout > 0:
+            sleep(check_for)
+            timeout -= check_for
+            check_task = await self.check_task(task.id)
+
+            if check_task.photo_url_list and check_task.state != "generating":
+                return check_task
+        else:
+            TimeoutError(self.out_msg)
 
     # ============================================================================================= #
 
