@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Union
 
 from PIL.Image import Image
-from httpx._client import BaseClient
+from httpx._client import Client, AsyncClient
 
 from wombo.models import CheckTask, CreateTask
 
@@ -13,7 +13,7 @@ class BaseDream(ABC):
     Base class for all dreams (sync / async).
     """
 
-    client: BaseClient
+    client: Union[Client, AsyncClient]
 
     @staticmethod
     def save_frames_as_gif(frames: List[Image], duration: int = 400) -> BytesIO:
