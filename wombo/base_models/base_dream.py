@@ -54,12 +54,21 @@ class BaseDream(ABC):
         pass
 
     @abstractmethod
-    def generate(
+    def generate_image(
             self,
             text: str,
             style: int,
-            gif: bool,
             timeout: int,
             check_for: int
-    ) -> Union[BytesIO, Union[CheckTask, bool]]:
+    ) -> CheckTask:
+        pass
+
+    @abstractmethod
+    def generate_gif(
+            self,
+            text: str,
+            style: int,
+            timeout: int,
+            check_for: int
+    ) -> BytesIO:
         pass
