@@ -40,6 +40,9 @@ class Dream(BaseDream):
         return key[0]
 
     def _get_auth_key(self) -> str:
+        """
+        Get Auth Key from JS file
+        """
         params = {"key": self._get_google_key()}
         json_data = {"returnSecureToken": True}
 

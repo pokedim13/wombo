@@ -17,15 +17,18 @@ class AsyncDream(BaseDream):
         self.out_msg: str = out_msg
 
     async def _get_js_filename(self) -> str:
-        """Get name JS file, from extract Google Key"""
-
+        """
+        Get name JS file, from extract Google Key
+        """
         response = await self.client.get(urls["js_filename"])
         js_filename = re.findall(r"_app-(\w+)", response.text)
 
         return js_filename[0]
 
     async def _get_google_key(self) -> str:
-        """Get Google Key from JS file"""
+        """
+        Get Google Key from JS file
+        """
         js_filename = await self._get_js_filename()
 
         url = f"https://dream.ai/_next/static/chunks/pages/_app-{js_filename}.js"
@@ -35,7 +38,9 @@ class AsyncDream(BaseDream):
         return key[0]
 
     async def _get_auth_key(self) -> str:
-        """Get Auth Key from JS file"""
+        """
+        Get Auth Key from JS file
+        """
         params = {"key": await self._get_google_key()}
         json_data = {"returnSecureToken": True}
 
@@ -52,7 +57,9 @@ class AsyncDream(BaseDream):
 
     # ============================================================================================= #
     async def create_task(self, text: str, style: int = 84) -> CreateTask:
-        """We set the task to generate an image and use a certain TASK_ID, which we will track"""
+        """
+        We set the task to generate an image and use a certain TASK_ID, which we will track
+        """
         draw_url = "https://paint.api.wombo.ai/api/v2/tasks"
         auth_key = await self._get_auth_key()
         data = (
@@ -86,7 +93,9 @@ class AsyncDream(BaseDream):
                        gif: bool = False, 
                        timeout: int = 60,
                        check_for: int = 3):
-        """Generate image"""
+        """
+        Generate image
+        """
         task = await self.create_task(text=text, style=style)
         await asyncio.sleep(2)
         timeout -= 2
@@ -108,7 +117,9 @@ class AsyncDream(BaseDream):
     # ============================================================================================= #
 
     async def gif(self, url_list: typing.List, thread: bool = True) -> io.BytesIO:
-        """Creating a streaming object with gif"""
+        """
+        Creating a streaming object with gif
+        """
         tasks = [self.client.get(url) for url in url_list]
         res = await asyncio.gather(*tasks)
         frames = [Image.open(io.BytesIO(url.content)) for url in res]
