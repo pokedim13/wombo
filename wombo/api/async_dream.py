@@ -106,6 +106,24 @@ class AsyncDream(BaseDream):
         else:
             TimeoutError(self.out_msg)
 
+    async def generate_gif(
+            self,
+            text: str,
+            style: Style,
+            timeout: int,
+            check_for: int
+    ) -> io.BytesIO:
+        """
+        Generate gif
+        """
+        urls_images = await self.generate_image(
+            text,
+            style,
+            timeout,
+            check_for
+        )
+        return await self.gif(urls_images.photo_url_list)
+
     # ============================================================================================= #
 
     async def gif(self, url_list: typing.List, thread: bool = True) -> io.BytesIO:
@@ -124,7 +142,7 @@ class AsyncDream(BaseDream):
 
 async def main():
     dream = AsyncDream()
-    task = await dream.generate("Anime waifu in bikini")
+    task = await dream.generate_image("Anime waifu in bikini")
     with open("file.gif", 'wb') as f:
         gif = await dream.gif(task.photo_url_list)
         f.write(gif.getvalue())
