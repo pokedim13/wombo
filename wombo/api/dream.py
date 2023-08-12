@@ -1,4 +1,5 @@
-import typing 
+import typing
+from time import sleep
 
 import re
 import io
@@ -6,7 +7,7 @@ import io
 import httpx
 from PIL import Image
 
-from time import sleep
+from wombo.base_models.styles import Style
 from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
 from wombo.models import CreateTask, CheckTask
 from wombo.base_models import BaseDream
@@ -51,7 +52,7 @@ class Dream(BaseDream):
         return result["idToken"]
 
     # ============================================================================================= #
-    def create_task(self, text: str, style: int = 84) -> CreateTask:
+    def create_task(self, text: str, style: int = Style.buliojourney_v2) -> CreateTask:
         """We set the task to generate an image and use a certain TASK_ID, which we will track"""
         draw_url = "https://paint.api.wombo.ai/api/v2/tasks"
         auth_key = self._get_auth_key()
@@ -61,10 +62,10 @@ class Dream(BaseDream):
         )
 
         response = self.client.post(
-            draw_url, headers=headers_gen(auth_key), data=data.encode(), timeout=20
+            url=draw_url, headers=headers_gen(auth_key), data=data, timeout=20
         )
-        result = response.json()
-        result = CreateTask.parse_obj(result)
+        result_row = response.json()
+        result = CreateTask.parse_obj(result_row)
         return result
 
     def check_task(self, task_id: str, only_bool: bool = True) -> typing.Union[CheckTask, bool]:
@@ -75,11 +76,11 @@ class Dream(BaseDream):
         result = CheckTask.parse_obj(response.json())
         return bool(result.photo_url_list) if only_bool else result
 
-    def generate(self, text: str, 
-                       style: int = 84, 
-                       gif: bool = False, 
-                       timeout: int = 60,
-                       check_for: int = 3):
+    def generate(self, text: str,
+                 style: int = 84,
+                 gif: bool = False,
+                 timeout: int = 60,
+                 check_for: int = 3):
         """Generate image"""
         task = self.create_task(text=text, style=style)
         sleep(2)
