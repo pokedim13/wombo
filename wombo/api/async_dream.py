@@ -1,4 +1,6 @@
-import typing
+from time import sleep
+from typing import Union
+
 import re
 import io
 import asyncio
@@ -6,6 +8,7 @@ import asyncio
 import httpx
 from PIL import Image
 
+from wombo.base_models.styles import Style
 from wombo.urls import urls, headers_gen, check_headers, auth_key_headers
 from wombo.models import CreateTask, CheckTask
 from wombo.base_models import BaseDream
@@ -22,7 +25,6 @@ class AsyncDream(BaseDream):
         """
         response = await self.client.get(urls["js_filename"])
         js_filename = re.findall(r"_app-(\w+)", response.text)
-
         return js_filename[0]
 
     async def _get_google_key(self) -> str:
@@ -126,7 +128,7 @@ class AsyncDream(BaseDream):
 
     # ============================================================================================= #
 
-    async def gif(self, url_list: typing.List, thread: bool = True) -> io.BytesIO:
+    async def gif(self, url_list: list, thread: bool = True) -> io.BytesIO:
         """
         Creating a streaming object with gif
         """
