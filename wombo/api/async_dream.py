@@ -56,22 +56,22 @@ class AsyncDream(BaseDream):
         return result["idToken"]
 
     # ============================================================================================= #
-    async def create_task(self, text: str, style: int = 84) -> CreateTask:
+    async def create_task(self, text: str, style: Style) -> CreateTask:
         """
         We set the task to generate an image and use a certain TASK_ID, which we will track
         """
         draw_url = "https://paint.api.wombo.ai/api/v2/tasks"
         auth_key = await self._get_auth_key()
         data = (
-            '{"is_premium":false,"input_spec":{"prompt":"%s","style":%d,"display_freq":10}}'
-            % (text[:200], style)
+                '{"is_premium":false,"input_spec":{"prompt":"%s","style":%d,"display_freq":10}}'
+                % (text[:200], style.value)
         )
 
         response = await self.client.post(
-            draw_url, headers=headers_gen(auth_key), data=data.encode(), timeout=20
+            url=draw_url, headers=headers_gen(auth_key), data=data, timeout=20
         )
-        result = response.json()
-        result = CreateTask.parse_obj(result)
+        result_row = response.json()
+        result = CreateTask.parse_obj(result_row)
         return result
 
     async def check_task(
