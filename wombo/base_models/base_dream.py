@@ -54,13 +54,23 @@ class BaseDream(ABC):
         pass
 
     @abstractmethod
+    def _generate_model_image(
+            self,
+            text: str,
+            style: int,
+            timeout: int,
+            check_for: int
+    ) -> CreateTask:
+        pass
+
+    @abstractmethod
     def generate_image(
             self,
             text: str,
             style: int,
             timeout: int,
             check_for: int
-    ) -> CheckTask:
+    ) -> BytesIO:
         pass
 
     @abstractmethod

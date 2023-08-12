@@ -65,8 +65,8 @@ class Dream(BaseDream):
         draw_url = "https://paint.api.wombo.ai/api/v2/tasks"
         auth_key = self._get_auth_key()
         data = (
-            '{"is_premium":false,"input_spec":{"prompt":"%s","style":%d,"display_freq":10}}'
-            % (text[:200], style.value)
+                '{"is_premium":false,"input_spec":{"prompt":"%s","style":%d,"display_freq":10}}'
+                % (text[:200], style.value)
         )
 
         response = self.client.post(
@@ -86,7 +86,7 @@ class Dream(BaseDream):
         result = CheckTask.parse_obj(response.json())
         return bool(result.photo_url_list) if only_bool else result
 
-    def generate_image(
+    def _generate_model_image(
             self,
             text: str,
             style: Style = Style.buliojourney_v2,
@@ -108,6 +108,25 @@ class Dream(BaseDream):
         else:
             TimeoutError(self.out_msg)
 
+    def generate_image(
+            self,
+            text: str,
+            style: Style = Style.buliojourney_v2,
+            timeout: int = 60,
+            check_for: int = 3
+    ) -> io.BytesIO:
+        """
+        Generate image
+        """
+        image_url = (self._generate_model_image(
+            text, style, timeout, check_for
+        )).photo_url_list[-1]
+
+        image = self.client.get(image_url)
+        bytes_stream = io.BytesIO()
+        bytes_stream.write(image.read())
+        return bytes_stream
+
     def generate_gif(
             self,
             text: str,
@@ -118,7 +137,7 @@ class Dream(BaseDream):
         """
         Generate gif
         """
-        urls_images = self.generate_image(
+        urls_images = self._generate_model_image(
             text,
             style,
             timeout,

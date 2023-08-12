@@ -86,7 +86,7 @@ class AsyncDream(BaseDream):
         result = CheckTask.parse_obj(response.json())
         return bool(result.photo_url_list) if only_bool else result
 
-    async def generate_image(
+    async def _generate_model_image(
             self,
             text: str,
             style: Style = Style.buliojourney_v2,
@@ -94,7 +94,7 @@ class AsyncDream(BaseDream):
             check_for: int = 3
     ) -> CheckTask:
         """
-        Generate image
+        Generate image model
         """
         task = await self.create_task(text=text, style=style)
 
@@ -108,6 +108,25 @@ class AsyncDream(BaseDream):
         else:
             TimeoutError(self.out_msg)
 
+    async def generate_image(
+            self,
+            text: str,
+            style: Style = Style.buliojourney_v2,
+            timeout: int = 60,
+            check_for: int = 3
+    ) -> io.BytesIO:
+        """
+        Generate image
+        """
+        image_url = (await self._generate_model_image(
+            text, style, timeout, check_for
+        )).photo_url_list[-1]
+
+        image = await self.client.get(image_url)
+        bytes_stream = io.BytesIO()
+        bytes_stream.write(image.read())
+        return bytes_stream
+
     async def generate_gif(
             self,
             text: str,
@@ -118,7 +137,7 @@ class AsyncDream(BaseDream):
         """
         Generate gif
         """
-        urls_images = await self.generate_image(
+        urls_images = await self._generate_model_image(
             text,
             style,
             timeout,
@@ -144,7 +163,7 @@ class AsyncDream(BaseDream):
 
 async def main():
     dream = AsyncDream()
-    task = await dream.generate_image("Anime waifu in bikini")
+    task = await dream._generate_model_image("Anime waifu in bikini")
     with open("file.gif", 'wb') as f:
         gif = await dream.gif(task.photo_url_list)
         f.write(gif.getvalue())
