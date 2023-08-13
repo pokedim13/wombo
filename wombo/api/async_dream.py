@@ -15,8 +15,9 @@ from wombo.base_models import BaseDream
 
 
 class AsyncDream(BaseDream):
-    def __init__(self, out_msg: str = "") -> None:
+    def __init__(self, max_requests_per_token: int = 2, out_msg: str = "") -> None:
         self.client = httpx.AsyncClient()
+        self.max_requests_per_token: int = max_requests_per_token
         self.out_msg: str = out_msg
 
     async def _get_js_filename(self) -> str:
@@ -43,6 +44,10 @@ class AsyncDream(BaseDream):
         """
         Get Auth Key from JS file
         """
+        if self._counter_calls_auth < self.max_requests_per_token and self._auth_token:
+            self._counter_calls_auth += 1
+            return self._auth_token
+
         params = {"key": await self._get_google_key()}
         json_data = {"returnSecureToken": True}
 
@@ -55,7 +60,9 @@ class AsyncDream(BaseDream):
         )
 
         result = response.json()
-        return result["idToken"]
+        self._auth_token = result["idToken"]
+        self._counter_calls_auth = 0
+        return self._auth_token
 
     # ============================================================================================= #
     async def create_task(self, text: str, style: Style) -> CreateTask:

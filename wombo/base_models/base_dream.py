@@ -14,6 +14,8 @@ class BaseDream(ABC):
     """
 
     client: Union[Client, AsyncClient]
+    _counter_calls_auth: int = 0
+    _auth_token: str = ''
 
     @staticmethod
     def save_frames_as_gif(frames: List[Image], duration: int = 400) -> BytesIO:
