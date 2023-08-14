@@ -159,8 +159,3 @@ class Dream(BaseDream):
         urls = [self.client.get(url) for url in url_list]
         frames = [Image.open(io.BytesIO(url.content)) for url in urls]
         return self.save_frames_as_gif(frames)
-
-
-if __name__ == "__main__":
-    dream = Dream()
-    print(dream.generate_image("anime waifu in bikini"))

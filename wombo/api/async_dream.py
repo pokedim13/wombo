@@ -166,15 +166,3 @@ class AsyncDream(BaseDream):
             if thread
             else self.save_frames_as_gif(frames)
         )
-
-
-async def main():
-    dream = AsyncDream()
-    task = await dream._generate_model_image("Anime waifu in bikini")
-    with open("file.gif", 'wb') as f:
-        gif = await dream.gif(task.photo_url_list)
-        f.write(gif.getvalue())
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
