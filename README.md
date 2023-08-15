@@ -18,7 +18,7 @@
             <div>Basic import</div> 
             <pre>
 from wombo import Dream # sync
-dream = Dream(out_msg: str)
+dream = Dream(out_msg: str,  max_requests_per_token: int = 30)
 # out_msg: Message for response errors from the server
             </pre>
         </details>
@@ -68,7 +68,7 @@ dream.gif(self, url_list: list) -> io.BytesIO
             <div>Basic import</div> 
             <pre>
 from wombo import AsyncDream # sync
-dream = AsyncDream(out_msg: str)
+dream = AsyncDream(out_msg: str,  max_requests_per_token: int = 30)
 # out_msg: Message for response errors from the server
             </pre>
         </details>
@@ -111,6 +111,14 @@ await dream.gif(self, url_list: list, thread: bool = True) -> io.BytesIO
 # thread: Run the task to create a gif in another thread, so as not to block the program
             </pre>
         </details>
+    </details>
+    <details>
+    <summary style="font-size: 20px; padding-left: 6vh;">Style</summary>
+    <pre>
+    Style().get_awaible_styles: Getting available styles
+    Style.BASESTYLE: Basic style
+    Style().{name_style}: Specifying a style, works only after initialization, does not update styles automatically
+    </pre>
     </details>
 </details>
 
