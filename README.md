@@ -1,6 +1,5 @@
 <h1 align="center">Hi there, I'm</h1>
 
-<script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
 
 <a href="https://github.com/pokedim13/WOMBO" target="_blank">
   <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/WomboLogo.svg"/>
