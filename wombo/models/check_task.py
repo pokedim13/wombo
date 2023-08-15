@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -27,4 +27,4 @@ class CheckTask(BaseModel):
     is_nsfw: bool
     photo_url_list: List[str]
     generated_photo_keys: List[str]
-    result: Result = None
+    result: Optional[Result] = None

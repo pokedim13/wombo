@@ -1,4 +1,4 @@
-from wombo.api.dream import Dream
-from wombo.api.async_dream import AsyncDream
+from .async_dream import AsyncDream
+from .dream import Dream
 
 __all__ = ["Dream", "AsyncDream"]
