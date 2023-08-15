@@ -135,8 +135,3 @@ await dream.gif(self, url_list: list, thread: bool = True) -> io.BytesIO
 - [pillow](https://pypi.org/project/Pillow/) Optinal
 
 </details>
-
-<div id="vk_community_messages"></div>
-<script type="text/javascript">
-  VK.Widgets.CommunityMessages("vk_community_messages", 20003922);
-</script>
