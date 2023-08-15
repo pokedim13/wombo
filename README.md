@@ -10,10 +10,6 @@
 
 #### There are some changes in the new version of dream, We did not record the last version, so you will have to rewrite your previous code. We apologize for the sincere inconvenience
 
-<style>
-
-</style>
-
 <details>
     <summary style="font-size: 24px">Mini Documentation</summary>
     <details>
