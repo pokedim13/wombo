@@ -1,4 +1,4 @@
-from wombo.base_models.base_dream import BaseDream
-# from wombo.base_models.styles import Style
+from .dream import BaseDream
+from .styles import Style
 
-__all__ = ["BaseDream"]
+__all__ = ["BaseDream", "Style"]

@@ -1,16 +1,18 @@
 [tool.poetry]
 name = "wombo"
-version = "0.1.81"
-description = "Dream api"
-authors = ["Aleksey Baev <skinxedovich@vk.com>"]
-license = "mit"
+version = "0.2.1"
+description = ""
+authors = ["H3try <skinxedovich@vk.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
+pydantic = "2.1.1"
 httpx = "^0.24.1"
-pillow = "^9.5.0"
-pydantic = "^1.10.8"
+pillow = {version = "^10.0.0", optional = true}
+
+[tool.poetry.extras]
+gif = ["pillow"]
 
 
 [build-system]

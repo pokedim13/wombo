@@ -1,8 +1,4 @@
-"""
-    Wombo dream AI library.
-"""
+from wombo.api import AsyncDream, Dream
+from wombo.base_models import Style
 
-from wombo.api import Dream, AsyncDream
-from wombo.base_models.styles import Style
-
-__all__ = ["Dream", "AsyncDream", "Style"]
+__all__ = ["AsyncDream", "Dream", "Style"]
