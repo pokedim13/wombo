@@ -53,9 +53,14 @@ class Auth:
         return _auth_token
 
 class Style:
-    url = "https://dream.ai/_next/data/3cjhS-p1RUbbLXCBWDDJ7/create.json"
     def __init__(self, dream: Dream):
         self.dream = dream
+
+    @property
+    def url(self):
+        response = self.dream.client.get('https://dream.ai/')
+        regex = re.findall(r'/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js', response.text)
+        return f"https://dream.ai/_next/data/{regex[0]}/create.json"
 
     def _get_styles(self):
         return self.dream.client.get(self.url).json()
@@ -97,5 +102,5 @@ class API:
         return response
 
 dream = Dream()
-print(dream.api.check_task("631eabab-dcbb-4405-a5be-3e53aeeced96"))
+print(dream.style._get_styles())
 
