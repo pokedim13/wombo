@@ -8,6 +8,8 @@
 import re
 from httpx import Client
 
+from wombo.models import StyleModel
+
 class Dream: 
     def __init__(self):
         self.client = Client()
@@ -63,7 +65,11 @@ class Style:
         return f"https://dream.ai/_next/data/{regex[0]}/create.json"
 
     def _get_styles(self):
-        return self.dream.client.get(self.url).json()
+        response: dict = self.dream.client.get(self.url).json()['pageProps']['artStyles']
+        
+        model: StyleModel = StyleModel(art_styles=response)
+        return model
+
 
 class API:
     url = "https://paint.api.wombo.ai/api/v2/tasks"
@@ -102,5 +108,7 @@ class API:
         return response
 
 dream = Dream()
-print(dream.style._get_styles())
+model = dream.style._get_styles()
+
+print(model.art_styles[0])
 
