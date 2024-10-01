@@ -8,7 +8,7 @@
 import re
 from httpx import Client
 
-from wombo.models import StyleModel
+from wombo.models import StyleModel, TaskModel
 
 class Dream: 
     def __init__(self):
@@ -101,14 +101,24 @@ class API:
             json=self._data_gen(text=text, style=style),
             timeout=20
         ).json()
-        return response
+
+        model = TaskModel.parse_obj(response)
+        return model
+
 
     def check_task(self, task_id: str):
         response = self.dream.client.get(self.url+f"/{task_id}", timeout=10).json()
-        return response
 
-dream = Dream()
-model = dream.style._get_styles()
+        model = TaskModel.parse_obj(response)
+        return model
 
-print(model.art_styles[0])
+if __name__ == '__main__':
+    dream = Dream()
+    
+    #create_task = dream.api.create_task('#PROMPT#')
+    #print(create_task)
 
+    id = 'd2905924-fbc1-4b23-bfb7-8c2860665ac2'
+
+    check = dream.api.check_task(task_id=id)
+    print(check.result.final)
