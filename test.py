@@ -8,6 +8,8 @@
 import re
 from httpx import Client
 
+from wombo.models import StyleModel, TaskModel
+
 class Dream: 
     def __init__(self):
         self.client = Client()
@@ -63,7 +65,11 @@ class Style:
         return f"https://dream.ai/_next/data/{regex[0]}/create.json"
 
     def _get_styles(self):
-        return self.dream.client.get(self.url).json()
+        response: dict = self.dream.client.get(self.url).json()['pageProps']['artStyles']
+        
+        model: StyleModel = StyleModel(art_styles=response)
+        return model
+
 
 class API:
     url = "https://paint.api.wombo.ai/api/v2/tasks"
@@ -95,12 +101,24 @@ class API:
             json=self._data_gen(text=text, style=style),
             timeout=20
         ).json()
-        return response
+
+        model = TaskModel.parse_obj(response)
+        return model
+
 
     def check_task(self, task_id: str):
         response = self.dream.client.get(self.url+f"/{task_id}", timeout=10).json()
-        return response
 
-dream = Dream()
-print(dream.style._get_styles())
+        model = TaskModel.parse_obj(response)
+        return model
 
+if __name__ == '__main__':
+    dream = Dream()
+    
+    #create_task = dream.api.create_task('#PROMPT#')
+    #print(create_task)
+
+    id = 'd2905924-fbc1-4b23-bfb7-8c2860665ac2'
+
+    check = dream.api.check_task(task_id=id)
+    print(check.result.final)
