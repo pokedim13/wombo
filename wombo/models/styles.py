@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Union, Optional, List
+from pydantic import BaseModel, Field, RootModel
+from typing import List
 
 
 class ArtStylesModel(BaseModel):
@@ -11,11 +11,11 @@ class ArtStylesModel(BaseModel):
 	deleted_at: None = None
 	photo_url: str
 	is_premium: bool
-	model_type: str
+	type_model: str = Field(alias="model_type")
 	is_new: bool
 	supports_input_images: bool
 	blurDataURL: str
 
 
-class StyleModel(BaseModel):
-	art_styles: List[ArtStylesModel]
+class StyleModel(RootModel):
+	root: List[ArtStylesModel]
