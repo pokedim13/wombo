@@ -1,18 +1,47 @@
 [tool.poetry]
 name = "wombo"
-version = "0.2.1"
-description = ""
-authors = ["H3try <skinxedovich@vk.com>"]
+version = "0.3.0"
+description = "AI picture generated tool"
+authors = ["Алексей Баев <baev@cumproject.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pydantic = "2.1.1"
-httpx = "^0.24.1"
-pillow = {version = "^10.0.0", optional = true}
+httpx = "^0.27.2"
+pydantic = "^2.9.2"
 
-[tool.poetry.extras]
-gif = ["pillow"]
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.8"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
+pytest-asyncio = "^0.24.0"
+
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    "migrations",
+    "manage.py",
+]
+
+[tool.ruff.lint]
+unfixable = ["B"]
+select = [
+    "F",
+    "B",
+    "E",
+    "I",
+    "UP",
+    "N",
+    "ANN",
+    "Q"
+]
+ignore = ["ANN002", "ANN003", "ANN101", "ANN102", "ANN204"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"**/{tests,docs,tools}/*" = ["E402"]
 
 
 [build-system]
