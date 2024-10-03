@@ -1,17 +1,18 @@
-from wombo.base import BaseDream
-from wombo.models import StyleModel, TaskModel
+import re
+from asyncio import sleep
 
 from httpx import AsyncClient
 
-from asyncio import sleep, run
-import re
+from wombo.base import BaseDream
+from wombo.models import StyleModel, TaskModel
+
 
 class AsyncDream(BaseDream):
     class Style(BaseDream.Style):
         @property
         async def url(self) -> str:
-            response = await self.dream._client.get('https://dream.ai/')
-            regex = re.findall(r'/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js', response.text)
+            response = await self.dream._client.get("https://dream.ai/")
+            regex = re.findall(r"/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js", response.text)
             return f"https://dream.ai/_next/data/{regex[0]}/create.json"
         
         async def _get_styles(self) -> StyleModel:

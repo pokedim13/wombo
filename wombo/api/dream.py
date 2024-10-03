@@ -1,17 +1,18 @@
-from wombo.base import BaseDream
-from wombo.models import StyleModel, TaskModel
+import re
+from time import sleep
 
 from httpx import Client
 
-from time import sleep
-import re
+from wombo.base import BaseDream
+from wombo.models import StyleModel, TaskModel
+
 
 class Dream(BaseDream):
     class Style(BaseDream.Style):
         @property
         def url(self) -> str:
-            response = self.dream._client.get('https://dream.ai/')
-            regex = re.findall(r'/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js', response.text)
+            response = self.dream._client.get("https://dream.ai/")
+            regex = re.findall(r"/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js", response.text)
             return f"https://dream.ai/_next/data/{regex[0]}/create.json"
         
         def _get_styles(self) -> StyleModel:

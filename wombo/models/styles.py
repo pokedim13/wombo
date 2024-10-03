@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, RootModel
 from typing import List
+
+from pydantic import BaseModel, Field, RootModel
 
 
 class ArtStylesModel(BaseModel):

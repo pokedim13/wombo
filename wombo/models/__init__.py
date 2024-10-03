@@ -1,7 +1,7 @@
 import pydantic
 
 from wombo.models.styles import StyleModel
-from wombo.models.tasks  import TaskModel
+from wombo.models.tasks import TaskModel
 
 pydantic_version = pydantic.__version__
 

@@ -4,7 +4,8 @@ from typing import Union
 from httpx._client import AsyncClient, Client
 from pydantic import BaseModel
 
-from wombo.models import TaskModel, StyleModel, pydantic_version
+from wombo.models import StyleModel, TaskModel, pydantic_version
+
 
 class BaseDream(ABC):
     "BaseDream Class"
