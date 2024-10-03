@@ -16,9 +16,9 @@ class AsyncDream(BaseDream):
             return f"https://dream.ai/_next/data/{regex[0]}/create.json"
         
         async def _get_styles(self) -> StyleModel:
-            response = await self.dream._client.get(self.url)
+            response = await self.dream._client.get(await self.url)
             styles = response.json().get("pageProps").get("artStyles")
-            model: StyleModel = self.dream._get_model(StyleModel, response)
+            model: StyleModel = self.dream._get_model(StyleModel, styles)
             return model
     
     class Auth(BaseDream.Auth):
