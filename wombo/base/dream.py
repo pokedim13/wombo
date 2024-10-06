@@ -116,10 +116,12 @@ class BaseDream(ABC):
             Returns:
                 TaskModel: Task attrs."""
         
-    def __init__(self) -> None:
+    def __init__(self, token: str = None, debug: bool = False) -> None:
         self.style = self.Style(self)
         self.auth = self.Auth(self)
         self.api = self.API(self)
+        self.token = token
+        self.debug = debug
 
     def _get_model(self, model: BaseModel, data: any) -> BaseModel:
         if pydantic_version.split(".")[0] == "1":

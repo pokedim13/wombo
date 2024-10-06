@@ -17,6 +17,8 @@ class Dream(BaseDream):
         
         def _get_styles(self) -> StyleModel:
             response = self.dream._client.get(self.url).json().get("pageProps").get("artStyles")
+            if self.dream.debug:
+                print(response)
             styles: StyleModel = self.dream._get_model(StyleModel, response)
             self._save_styles(styles)
             return styles
@@ -33,6 +35,8 @@ class Dream(BaseDream):
             key = re.findall(r'"(AI\w+)"', response.text)
             return key[0]  
         def _get_auth_key(self) -> str:
+            if self.dream.token is not None:
+                return self.dream.token
             response = self.dream._client.post(
             self.urls.get("auth_key"),
                 params={"key": self._get_google_key()},
@@ -51,24 +55,32 @@ class Dream(BaseDream):
                 json=self._data_gen(text=text, style=style),
                 timeout=20
             ).json()
+            if self.dream.debug:
+                print(response)
             model: TaskModel = self.dream._get_model(TaskModel, response)
             return model
 
         def check_task(self, task_id: str) -> TaskModel:
             response = self.dream._client.get(self.url+f"/{task_id}", timeout=10).json()
+            if self.dream.debug:
+                print(response)
             model: TaskModel = self.dream._get_model(TaskModel, response)
             return model
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, token: str = None, debug: bool = False):
+        super().__init__(token, debug)
         self._client = Client()   
 
     def generate(self, text: str, style: int = 115, timeout: int = 60, check_for: int = 3) -> TaskModel:
         task = self.api.create_task(text=text, style=style)
+        if self.debug:
+            print(task)
         for _ in range(timeout, 0, -check_for):
-            check_task = self.api.check_task(task.id)
-            if check_task.result is not None:
-                return check_task
+            task = self.api.check_task(task.id)
+            if self.debug:
+                print(task)
+            if task.result is not None:
+                return task
             sleep(check_for)
         else:
             raise TimeoutError
