@@ -17,8 +17,9 @@ class Dream(BaseDream):
         
         def _get_styles(self) -> StyleModel:
             response = self.dream._client.get(self.url).json().get("pageProps").get("artStyles")
-            model: StyleModel = self.dream._get_model(StyleModel, response)
-            return model
+            styles: StyleModel = self.dream._get_model(StyleModel, response)
+            self._save_styles(styles)
+            return styles
 
     class Auth(BaseDream.Auth):
         def _get_js_filename(self) -> str:

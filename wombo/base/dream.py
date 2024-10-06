@@ -13,6 +13,13 @@ class BaseDream(ABC):
     class Style(ABC):
         def __init__(self, dream: "BaseDream") -> None:
             self.dream = dream
+            self.styles = None
+
+        def __getitem__(self, key):
+            for style in self.styles.root:
+                if key == style.name:
+                    return style.id 
+            return None
 
         @abstractproperty
         def url(self) -> str:
@@ -35,6 +42,9 @@ class BaseDream(ABC):
             Returns:
                 StyleModel: A style model containing information about styles.
             """
+
+        def _save_styles(self, styles: StyleModel):
+            self.styles = styles
 
     class Auth(ABC):
         urls = {

@@ -18,8 +18,9 @@ class AsyncDream(BaseDream):
         async def _get_styles(self) -> StyleModel:
             response = await self.dream._client.get(await self.url)
             styles = response.json().get("pageProps").get("artStyles")
-            model: StyleModel = self.dream._get_model(StyleModel, styles)
-            return model
+            styles: StyleModel = self.dream._get_model(StyleModel, styles)
+            self._save_styles(styles)
+            return styles
     
     class Auth(BaseDream.Auth):
         async def _get_js_filename(self) -> str:
