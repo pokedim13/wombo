@@ -18,6 +18,8 @@ class AsyncDream(BaseDream):
         async def _get_styles(self) -> StyleModel:
             response = await self.dream._client.get(await self.url)
             styles = response.json().get("pageProps").get("artStyles")
+            if self.dream.debug:
+                print(response.json())
             styles: StyleModel = self.dream._get_model(StyleModel, styles)
             self._save_styles(styles)
             return styles
@@ -52,24 +54,32 @@ class AsyncDream(BaseDream):
                 json=self._data_gen(text=text, style=style),
                 timeout=20
             )
+            if self.dream.debug:
+                print(response.json())
             model: TaskModel = self.dream._get_model(TaskModel, response.json())
             return model
 
         async def check_task(self, task_id: str) -> TaskModel:
             response = await self.dream._client.get(self.url+f"/{task_id}", timeout=10)
+            if self.dream.debug:
+                print(response.json())
             model: TaskModel = self.dream._get_model(TaskModel, response.json())
             return model
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, token: str = None, debug: bool = False):
+        super().__init__(token, debug)
         self._client = AsyncClient()
 
     async def generate(self, text: str, style: int = 115, timeout: int = 60, check_for: int = 3) -> TaskModel:
         task = await self.api.create_task(text=text, style=style)
+        if self.debug:
+            print(task)
         for _ in range(timeout, 0, -check_for):
-            check_task = await self.api.check_task(task.id)
-            if check_task.result is not None:
-                return check_task
+            task = await self.api.check_task(task.id)
+            if self.debug:
+                print(task)
+            if task.result is not None:
+                return task
             await sleep(check_for)
         else:
             raise TimeoutError
