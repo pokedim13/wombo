@@ -7,3 +7,4 @@ def test_generate():
 
 def test_styles():
     assert isinstance(dream.style._get_styles(), models.StyleModel)
+    assert dream.style["Dreamland v3"] == 115
