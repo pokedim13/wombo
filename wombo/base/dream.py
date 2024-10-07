@@ -21,6 +21,25 @@ class BaseDream(ABC):
                     return style.id 
             return None
 
+        @property
+        def free(self) -> StyleModel:
+            res = []
+            for style in self.styles.root:
+                if style.is_premium:
+                    continue
+                res.append(style)
+            return self.dream._get_model(StyleModel, res)
+        
+        @property
+        def premium(self) -> StyleModel:
+            res = []
+            for style in self.styles.root:
+                if not style.is_premium:
+                    continue
+                res.append(style)
+            return self.dream._get_model(StyleModel, res)
+            
+
         @abstractproperty
         def url(self) -> str:
             """Returns the URL associated with this styles.
