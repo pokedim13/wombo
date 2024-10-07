@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wombo"
-version = "0.3.0"
+version = "0.3.2"
 description = "AI picture generated tool"
 authors = ["Алексей Баев <baev@cumproject.ru>"]
 readme = "README.md"
