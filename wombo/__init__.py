@@ -1,4 +1,5 @@
-from wombo import models
-from wombo.api import AsyncDream, Dream
+from .api import AsyncDream, Dream
+from .base import BaseDream
+from .models import StyleModel, StylesModel, TaskModel
 
-__all__ = ["models", "AsyncDream", "Dream"]
+__all__ = ["Dream", "AsyncDream", "StyleModel", "StylesModel", "TaskModel", "BaseDream"]

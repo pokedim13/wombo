@@ -1,158 +1,152 @@
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Union
+import re
+from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
-from httpx._client import AsyncClient, Client
-from pydantic import BaseModel
+from httpx import Response
+from pydantic import __version__ as pydantic_version
 
-from wombo.models import StyleModel, TaskModel, pydantic_version
+from wombo.models import StylesModel, TaskModel
 
-
+T = TypeVar("T", bound="BaseDream")
 class BaseDream(ABC):
-    "BaseDream Class"
-    _client: Union[Client, AsyncClient]
-    class Style(ABC):
-        def __init__(self, dream: "BaseDream") -> None:
+    class Style(ABC, Generic[T]):
+        def __init__(self, dream: T) -> None:
             self.dream = dream
-            self.styles = None
-
-        def __getitem__(self, key):
-            for style in self.styles.root:
-                if key == style.name:
-                    return style.id 
-            return None
-
-        @property
-        def free(self) -> StyleModel:
-            res = []
-            for style in self.styles.root:
-                if style.is_premium:
-                    continue
-                res.append(style)
-            return self.dream._get_model(StyleModel, res)
+        
+        @staticmethod
+        def regex(responce: Response) -> str:
+            """The regex is needed to get a file containing all the styles."""
+            regex = re.findall(r"/_next/static/([a-zA-Z0-9-]+)/_ssgManifest.js", responce.text)
+            return f"https://dream.ai/_next/data/{regex[0]}/create.json"
         
         @property
-        def premium(self) -> StyleModel:
-            res = []
-            for style in self.styles.root:
-                if not style.is_premium:
-                    continue
-                res.append(style)
-            return self.dream._get_model(StyleModel, res)
-            
-
-        @abstractproperty
-        def url(self) -> str:
-            """Returns the URL associated with this styles.
-
-            This abstract method must be overridden in child classes to provide a specific URL that matches the style type.
-
-            Returns:
-                str: The URL of the styles.
-            """
-
         @abstractmethod
-        def _get_styles(self)-> StyleModel:
-            """Retrieves the style model for the current object.
-
-            This abstract method must be redefined in subclasses for 
-            getting up-to-date information about styles. The returned style model
-            It can contain various attributes such as colors, fonts, etc.
-
-            Returns:
-                StyleModel: A style model containing information about styles.
-            """
-
-        def _save_styles(self, styles: StyleModel):
-            self.styles = styles
-
-    class Auth(ABC):
+        def url(self) -> str:
+            """Getting a link to styles"""
+        
+        @abstractmethod
+        def get_styles(self) -> StylesModel:
+            """Function of getting styles"""
+    
+    class Auth(ABC, Generic[T]):
         urls = {
             "js_filename": "https://dream.ai/create",
             "google_key": "https://dream.ai/_next/static/chunks/pages/_app-{js_filename}.js",
             "auth_key": "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
         }
-        def __init__(self, dream: "BaseDream") -> None:
+
+        def __init__(self, dream: T) -> None:
             self.dream = dream
 
+        @staticmethod
+        def _regex_js_filename(response: Response) -> str:
+            return re.findall(r"_app-(\w+)", response.text)
+        
+        @staticmethod
+        def _regex_google_key(response: Response) -> str:
+            key = re.findall(r'"(AI\w+)"', response.text)
+            return key
+        
         @abstractmethod
         def _get_js_filename(self) -> str:
-            """Getting a js file with authorization data
-            
-            Returns:
-                str: file_name.
-            """
-
+            """Getting js file name. To receive an anonymous token"""
+        
         @abstractmethod
         def _get_google_key(self) -> str:
-            """Getting a token to send to google and receive an authorization token
-            
-            Returns:
-                str: google token.
-            """
-
+            """Getting the google key from the name of the js file. To receive an anonymous token."""
+        
         @abstractmethod
         def _get_auth_key(self) -> str:
-            """Getting a authorization token
-            
-            Returns:
-                str: authorization token.
-            """
-
-    class API(ABC):
+            """Sending requests for an anonymous token. If a custom token was passed, it will be returned."""
+    
+    class API(ABC, Generic[T]):
         url = "https://paint.api.wombo.ai/api/v2/tasks"
-
-        def __init__(self, dream: "BaseDream"):
+        
+        def __init__(self, dream: T) -> None:
             self.dream = dream
-
-        def _headers_gen(self, auth_key: str):
+        
+        @staticmethod
+        def _data_gen(text: str, 
+                      style: int, 
+                      ratio: str, 
+                      premium: bool, 
+                      display_freq: int) -> dict:
+            """"""
             return {
-                "authorization": f"bearer {auth_key}",
-                "x-app-version": "WEB-2.0.0",
-            }
-
-        def _data_gen(self, text: str, style: int):
-            return {
-                "is_premium": False,
+                "is_premium": premium,
                 "input_spec": {
-                    "aspect_ratio": "old_vertical_ratio",
+                    "aspect_ratio": ratio,
                     "prompt": text,
                     "style": style,
-                    "display_freq": 10
-                }
+                    "display_freq": display_freq
+                },
             }
         
         @abstractmethod
-        def create_task(self, text: str, style: int)-> TaskModel:
-            """Creating a generative image creation task
-            
-            Returns:
-                TaskModel: Task attrs."""
-
+        def create_task(self, text: str, 
+                        style: int = 115, 
+                        ratio: str = "old_vertical_ratio", 
+                        premium: bool = False, 
+                        display_freq: int = 10) -> TaskModel:
+            """Sending a photo generation task in the wombo servers"""
+        
         @abstractmethod
         def check_task(self, task_id: str) -> TaskModel:
-            """Creating a generative image creation task
+            """Checking readiness of task"""
+    
+        @abstractmethod
+        def tradingcard(self, task_id: str) -> str:
+            """Generate original wombo image"""
+
+    class Profile(ABC, Generic[T]):
+        url = "https://dream.ai/api/"
+        def __init__(self, dream: T) -> None:
+            self.dream = dream
+
+        @abstractmethod
+        def gallery(self, 
+                    task_id: str, is_public: bool = True, 
+                    name: str = "", is_prompt_visible: str = True,
+                    tags: list = None) -> Response:
+            """Save the image in your profile. You will need a profile token. Return RAW Response"""
+
+        @abstractmethod
+        def delete(self, id_list: list) -> Response:
+            """Deletes images from the user's profile. Return RAW Response"""
+
+        @abstractmethod
+        def edit(self, profile_bio: str = "", website_link: str = "") -> Response:
+            """Edit dream (wombo) profile"""
             
-            Returns:
-                TaskModel: Task attrs."""
-        
-    def __init__(self, token: str = None, debug: bool = False) -> None:
+    base_url = "https://dream.ai/"
+    def __init__(self, token: str = None):
         self.style = self.Style(self)
         self.auth = self.Auth(self)
         self.api = self.API(self)
+        self.profile = self.Profile(self)
         self.token = token
-        self.debug = debug
 
-    def _get_model(self, model: BaseModel, data: any) -> BaseModel:
+    @staticmethod
+    def _headers_gen(auth_key: str) -> dict:
+        return {
+            "authorization": f"bearer {auth_key}",
+            "x-app-version": "WEB-2.0.0",
+        }
+
+    @staticmethod
+    def _get_model[Model](model: Model, data: any) -> Model:
         if pydantic_version.split(".")[0] == "1":
             return model.parse_obj(data)
         if pydantic_version.split(".")[0] == "2":
             return model.model_validate(data)
-        raise ValueError
-
+        raise ValueError("support pydantic version not found")
+    
     @abstractmethod
-    def generate(self, text: str, style: int, timeout: int, check_for: int) -> TaskModel:
-        """generate picture
-        
-        Returns:
-            TaskModel: Task attrs."""
-
+    def generate(self, text: str,
+                 style: int = 115,
+                 ratio: str = "old_vertical_ratio",
+                 premium: bool = False, 
+                 display_freq: int = 10,
+                 timeout: int = 60,
+                 check_for: int = 3) -> TaskModel:
+        """Generate picture"""

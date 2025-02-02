@@ -1,26 +1,33 @@
-<h1 align="center">Hi there, I'm</h1>
+<h1 align="center">Привет всем, меня зовут</h1>
 
 
-<a href="https://github.com/pokedim13/WOMBO" target="_blank">
+<a href="https://gitverse.ru/cumproject/wombo" target="_blank">
   <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/WomboLogo.svg"/>
 </a>
 
-### I am a module for using wombo dream ai (neural network of image generation)
+### Я модуль для использования нейросети dream от кампании wombo 
 
-#### There are some changes in the new version of dream, We did not record the last version, so you will have to rewrite your previous code. We apologize for the sincere inconvenience
+#### Sweetdogs (Разработчик, так же известный как pokedim13, H3try) придерживается ZeroVer. Поэтому обратная совместимость не гарантируется. Так же кампания wombo может обанкротиться или ещё что. В общем issue вы написать сможете, но решения вашей проблемы можете не ожидать.
 
 <details>
-    <summary style="font-size: 24px; font-weight: bold;">Documentation</summary>
-    For the asynchronous use case, it is similar
+    <summary style="font-size: 24px; font-weight: bold;">Документация</summary>
+    При асинхронном использовании, всё точно так же, только не забудьте вызвать await
     <details>
-        <summary style="font-size: 24px; font-weight: bold;">Creating an instance</summary> 
+        <summary style="font-size: 24px; font-weight: bold;">Создание экземпляра</summary> 
         <pre>
-from wombo import Dream
+from wombo import Dream # or AsyncDream
 dream = Dream()
         </pre>
     </details>
     <details>
-        <summary style="font-size: 24px; font-weight: bold;">Generate picture</summary> 
+        <summary style="font-size: 24px; font-weight: bold;">Генерация изображения</summary> Может принимать следующие параметры:
+        <li>text: str</li>
+        <li>*style: int</li>
+        <li>*ratio: str</li>
+        <li>*premium: bool</li>
+        <li>*display_freq: int</li>
+        <li>*timeout: int</li>
+        <li>*check_for: int</li>
         <pre>
 from wombo.models import TaskModel
 picture: TaskModel = dream.generate("anime waifu")
@@ -31,14 +38,14 @@ picture: TaskModel = dream.generate("anime waifu")
         <pre>
 task: TaskModel = dream.api.create_task("anime waifu")
 dream.api.check_task(task.id)
+dream.api.tradingcard(task.id)
         </pre>
     </details>
     <details>
-        <summary style="font-size: 24px; font-weight: bold;">Styles</summary> 
+    <summary style="font-size: 24px; font-weight: bold;">Стили</summary> 
         <pre>
-from wombo.models import StyleModel
-styles: = dream.styles._get_styles()
-dream.styles["Dreamland v3"] # Required after executing _get_styles()
+from wombo.models import StylesModel, StyleModel
+styles: = dream.styles.get_styles()
         </pre>
     </details>
 
@@ -47,17 +54,16 @@ dream.styles["Dreamland v3"] # Required after executing _get_styles()
 #
 
 <details>
-    <summary style="font-size: 24px; font-weight: bold;">Creditless</summary>
+    <summary style="font-size: 24px; font-weight: bold;">Разработчики</summary>
 
-- [@mayneryt](https://vk.com/mayneryt) her give me algoritm
-- [@pokedim13](https://vk.com/h3try) me
+- [@sweetdogs](https://vk.com/sweetdogs) me
 </details>
 
 #
 
 <details>
-    <summary style="font-size: 24px; font-weight: bold;">Requirements</summary>
+    <summary style="font-size: 24px; font-weight: bold;">Зависимости</summary>
 
 - [httpx](https://pypi.org/project/httpx/)
-- [pydantic](https://pypi.org/project/pydantic/)
+- [pydantic](https://pypi.org/project/pydantic/) (>=1.10.0, <3.0.0)
 </details>

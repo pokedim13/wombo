@@ -1,10 +1,9 @@
-from wombo import Dream, models
+from wombo import Dream, StylesModel, TaskModel
 
 dream = Dream()
 
-def test_generate():
-    assert isinstance(dream.generate("anime waifu"), models.TaskModel)
+def test_generate() -> None:
+    assert isinstance(dream.generate("anime waifu"), TaskModel)
 
-def test_styles():
-    assert isinstance(dream.style._get_styles(), models.StyleModel)
-    assert dream.style["Dreamland v3"] == 115
+def test_styles() -> None:
+    assert isinstance(dream.style.get_styles(), StylesModel)

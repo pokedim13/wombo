@@ -1,3 +1,3 @@
-from wombo.base.dream import BaseDream
+from .dream import BaseDream
 
 __all__ = ["BaseDream"]

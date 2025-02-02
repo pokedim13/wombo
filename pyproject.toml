@@ -1,25 +1,30 @@
-[tool.poetry]
+[project]
 name = "wombo"
-version = "0.3.2"
-description = "AI picture generated tool"
-authors = ["Алексей Баев <baev@cumproject.ru>"]
+version = "0.5.0"
+description = "I am a module for dream.ai Wombo (neural network for image generation"
+authors = [
+    {name = "Алексей Баев",email = "skinxedovich@vk.com"}
+]
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx (>=0.28.1,<0.29.0)",
+    "pydantic (>=1.10.0,<3.0.0)"
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-httpx = "^0.27.2"
-pydantic = "^2.9.2"
-
+# Group dependency
+## dev
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.6.8"
-
+ruff = "^0.9.4"
+## test
 [tool.poetry.group.test.dependencies]
-pytest = "^8.3.3"
-pytest-asyncio = "^0.24.0"
+pytest = "^8.3.4"
+pytest-asyncio = "^0.25.3"
 
 
+# RUFF linter Configuration
 [tool.ruff]
-line-length = 120
+line-length = 140
 exclude = [
     "migrations",
     "manage.py",
@@ -27,23 +32,10 @@ exclude = [
 
 [tool.ruff.lint]
 unfixable = ["B"]
-select = [
-    "F",
-    "B",
-    "E",
-    "I",
-    "UP",
-    "N",
-    "ANN",
-    "Q"
-]
+select = ["F","B","E","I","UP","N","ANN","Q"]
 ignore = ["ANN002", "ANN003", "ANN101", "ANN102", "ANN204"]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402"]
-"**/{tests,docs,tools}/*" = ["E402"]
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
