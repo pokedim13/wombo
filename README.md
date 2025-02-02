@@ -1,7 +1,7 @@
 <h1 align="center">Привет всем, меня зовут</h1>
 
 
-<a href="https://gitverse.ru/cumproject/wombo" target="_blank">
+<a href="https://gitverse.ru/sweetdogs/wombo" target="_blank">
   <img src="https://upload.wikimedia.org/wikipedia/commons/d/d7/WomboLogo.svg"/>
 </a>
 
