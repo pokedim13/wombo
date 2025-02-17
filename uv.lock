@@ -242,7 +242,7 @@ wheels = [
 [[package]]
 name = "wombo"
 version = "0.5.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "httpx" },
     { name = "pydantic" },

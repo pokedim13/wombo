@@ -38,3 +38,6 @@ name = "gitverse"
 url = "https://gitverse.ru/sweetdogs?tab=packages"
 publish-url = "https://gitverse.ru/api/packages/sweetdogs/pypi"
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
