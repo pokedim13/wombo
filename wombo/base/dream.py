@@ -5,9 +5,12 @@ from typing import Generic, TypeVar
 from httpx import Response
 from pydantic import __version__ as pydantic_version
 
+from wombo.models import ArtStyleModel, TaskModel
+
 T = TypeVar("T", bound="BaseDream")
 class BaseDream(ABC):
     class Style(ABC, Generic[T]):
+        """Styles url and functions for use styles."""
         def __init__(self, dream: T) -> None:
             self.dream = dream
 
@@ -23,10 +26,11 @@ class BaseDream(ABC):
             """Getting a link to styles."""
 
         @abstractmethod
-        def get_styles(self) -> Response:
+        def get_styles(self) -> ArtStyleModel:
             """Function of getting styles."""
 
     class Auth(ABC, Generic[T]):
+        """Auth system. Get dream api token for requests."""
         urls = {
             "js_filename": "https://dream.ai/create",
             "google_key": "https://dream.ai/_next/static/chunks/pages/_app-{js_filename}.js",
@@ -58,6 +62,7 @@ class BaseDream(ABC):
             """Sending requests for an anonymous token. If a custom token was passed, it will be returned."""
 
     class API(ABC, Generic[T]):
+        """Base API for use."""
         url = "https://paint.api.wombo.ai/api/v2/tasks"
 
         def __init__(self, dream: T) -> None:
@@ -81,11 +86,19 @@ class BaseDream(ABC):
             }
         
         @abstractmethod
-        def create_task(self) -> Response:
+        def create_task(self, text: str, 
+                        style: int = 115, 
+                        ratio: str = "old_vertical_ratio", 
+                        premium: bool = False, 
+                        display_freq: int = 10) -> TaskModel:
             """Sending a photo generation task in the wombo servers."""
 
         @abstractmethod
-        def tradingcard(self) -> str:
+        def check_task(self, task_id: str) -> TaskModel:
+            """Checking readiness of task"""
+
+        @abstractmethod
+        def tradingcard(self, task_id: str) -> str:
             """Generate original wombo image. Return url."""
 
     class Profile(ABC, Generic[T]):
@@ -98,7 +111,10 @@ class BaseDream(ABC):
             self.dream = dream
 
         @abstractmethod
-        def gallery(self) -> Response:
+        def gallery(self, 
+                    task_id: str, is_public: bool = True, 
+                    name: str = "", is_prompt_visible: str = True,
+                    tags: list = None) -> Response:
             """Save the image in your profile. You will need a profile token."""
 
         @abstractmethod
@@ -118,6 +134,13 @@ class BaseDream(ABC):
         self.token = token
 
     @staticmethod
+    def _headers_gen(auth_key: str) -> dict:
+        return {
+            "authorization": f"bearer {auth_key}",
+            "x-app-version": "WEB-2.0.0",
+        }
+
+    @staticmethod
     def _get_model[Model](model: Model, data: any) -> Model:
         if pydantic_version.split(".")[0] == "1":
             return model.parse_obj(data)
@@ -126,5 +149,11 @@ class BaseDream(ABC):
         raise ValueError("Support pydantic version not found.")
     
     @abstractmethod
-    def generate(self) -> dict:
+    def generate(self, text: str,
+                 style: int = 115,
+                 ratio: str = "old_vertical_ratio",
+                 premium: bool = False, 
+                 display_freq: int = 10,
+                 timeout: int = 60,
+                 check_for: int = 3) -> TaskModel:
         """Generate image."""
