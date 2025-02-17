@@ -1,28 +1,26 @@
 [project]
 name = "wombo"
 version = "0.5.0"
-description = "I am a module for dream.ai Wombo (neural network for image generation"
+description = "Image generation module. I use the dream neural network from wombo for my work."
 authors = [
-    {name = "Алексей Баев",email = "skinxedovich@vk.com"}
+    {name = "Aleksey Baev",email = "skinxedovich@vk.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "httpx (>=0.28.1,<0.29.0)",
-    "pydantic (>=1.10.0,<3.0.0)"
+    "httpx>=0.28.1",
+    "pydantic>=2.10.6",
 ]
 
-# Group dependency
-## dev
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.9.4"
-## test
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.4"
-pytest-asyncio = "^0.25.3"
+[dependency-groups]
+dev = [
+    "ruff>=0.9.6",
+]
+test = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.3",
+]
 
-
-# RUFF linter Configuration
 [tool.ruff]
 line-length = 140
 exclude = [
@@ -35,7 +33,11 @@ unfixable = ["B"]
 select = ["F","B","E","I","UP","N","ANN","Q"]
 ignore = ["ANN002", "ANN003", "ANN101", "ANN102", "ANN204"]
 
+[[tool.uv.index]]
+name = "gitverse"
+url = "https://gitverse.ru/sweetdogs?tab=packages"
+publish-url = "https://gitverse.ru/api/packages/sweetdogs/pypi"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

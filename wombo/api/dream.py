@@ -4,7 +4,7 @@ import time
 from httpx import AsyncClient, Client, Response
 
 from wombo.base import BaseDream
-from wombo.models import StylesModel, TaskModel
+from wombo.models import ArtStyleModel, TaskModel
 
 
 class Dream(BaseDream):
@@ -14,10 +14,10 @@ class Dream(BaseDream):
             response = self.dream._client.get(url=self.dream.base_url)
             return self.regex(response)
         
-        def get_styles(self) -> StylesModel:
+        def get_styles(self) -> ArtStyleModel:
             response: Response = self.dream._client.get(self.url)
             response = response.json().get("pageProps").get("artStyles")
-            return self.dream._get_model(StylesModel, response)
+            return self.dream._get_model(ArtStyleModel, response)
 
     class Auth(BaseDream.Auth["Dream"]):
         def _get_js_filename(self) -> str:
@@ -64,12 +64,13 @@ class Dream(BaseDream):
             response = response.json()
             model: TaskModel = self.dream._get_model(TaskModel, response)
             return model
-        
+
         def tradingcard(self, task_id: str) -> str:
             response = self.dream._client.post(
                 f"https://paint.api.wombo.ai/api/tradingcard/{task_id}",
-                headers=self._headers_gen(self.dream.auth._get_auth_key())
+                headers=self.dream._headers_gen(self.dream.auth._get_auth_key())
             )
+            response = response.text
             return response
 
     class Profile(BaseDream.Profile["Dream"]):
@@ -90,7 +91,7 @@ class Dream(BaseDream):
             )
             response = response.json()
             return response
-
+        
         def delete(self, id_list: list) -> Response:
             response = self.dream._client.post(
                 f"{self.url}/gallery/multi-delete",
@@ -132,21 +133,21 @@ class Dream(BaseDream):
             time.sleep(check_for)
         else:
             raise TimeoutError("Generate timeout")
-        
+
 
 class AsyncDream(BaseDream):
-    class Style(BaseDream.Style["AsyncDream"]):
+    class Style(BaseDream.Style["Dream"]):
         @property
         async def url(self) -> str:
             response = await self.dream._client.get(url=self.dream.base_url)
             return self.regex(response)
         
-        async def get_styles(self) -> StylesModel:
+        async def get_styles(self) -> ArtStyleModel:
             response: Response = await self.dream._client.get(await self.url)
             response = response.json().get("pageProps").get("artStyles")
-            return self.dream._get_model(StylesModel, response)
+            return self.dream._get_model(ArtStyleModel, response)
 
-    class Auth(BaseDream.Auth["AsyncDream"]):
+    class Auth(BaseDream.Auth["Dream"]):
         async def _get_js_filename(self) -> str:
             response = await self.dream._client.get(self.urls.get("js_filename"))
             js_filename = self._regex_js_filename(response)
@@ -171,7 +172,7 @@ class AsyncDream(BaseDream):
             self.dream.token = result.get("idToken")
             return self.dream.token
 
-    class API(BaseDream.API["AsyncDream"]):
+    class API(BaseDream.API["Dream"]):
         async def create_task(self, text: str, 
                         style: int = 115, 
                         ratio: str = "old_vertical_ratio", 
@@ -191,15 +192,16 @@ class AsyncDream(BaseDream):
             response = response.json()
             model: TaskModel = self.dream._get_model(TaskModel, response)
             return model
-        
+
         async def tradingcard(self, task_id: str) -> str:
             response = await self.dream._client.post(
                 f"https://paint.api.wombo.ai/api/tradingcard/{task_id}",
-                headers=self._headers_gen(await self.dream.auth._get_auth_key())
+                headers=self.dream._headers_gen(await self.dream.auth._get_auth_key())
             )
+            response = response.text
             return response
 
-    class Profile(BaseDream.Profile["AsyncDream"]):
+    class Profile(BaseDream.Profile["Dream"]):
         async def gallery(self, 
                     task_id: str, is_public: bool = True, 
                     name: str = "", is_prompt_visible: str = True,
@@ -217,7 +219,7 @@ class AsyncDream(BaseDream):
             )
             response = response.json()
             return response
-
+        
         async def delete(self, id_list: list) -> Response:
             response = await self.dream._client.post(
                 f"{self.url}/gallery/multi-delete",

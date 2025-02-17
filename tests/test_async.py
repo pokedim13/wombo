@@ -1,6 +1,6 @@
 import pytest
 
-from wombo import AsyncDream, StylesModel, TaskModel
+from wombo import AsyncDream, ArtStyleModel, TaskModel
 
 dream = AsyncDream()
 
@@ -10,4 +10,4 @@ async def test_generate()-> None:
 
 @pytest.mark.asyncio
 async def test_styles() -> None:
-    assert isinstance(await dream.style.get_styles(), StylesModel)
+    assert isinstance(await dream.style.get_styles(), ArtStyleModel)
