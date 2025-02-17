@@ -1,9 +1,9 @@
 [project]
 name = "wombo"
 version = "0.5.0"
-description = "Photo generation module. I use the dream neural network from wombo for my work."
+description = "Image generation module. I use the dream neural network from wombo for my work."
 authors = [
-    {name = "Алексей Баев",email = "skinxedovich@vk.com"}
+    {name = "Aleksey Baev",email = "skinxedovich@vk.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
