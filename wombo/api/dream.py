@@ -136,7 +136,7 @@ class Dream(BaseDream):
 
 
 class AsyncDream(BaseDream):
-    class Style(BaseDream.Style["Dream"]):
+    class Style(BaseDream.Style["AsyncDream"]):
         @property
         async def url(self) -> str:
             response = await self.dream._client.get(url=self.dream.base_url)
@@ -147,7 +147,7 @@ class AsyncDream(BaseDream):
             response = response.json().get("pageProps").get("artStyles")
             return self.dream._get_model(ArtStyleModel, response)
 
-    class Auth(BaseDream.Auth["Dream"]):
+    class Auth(BaseDream.Auth["AsyncDream"]):
         async def _get_js_filename(self) -> str:
             response = await self.dream._client.get(self.urls.get("js_filename"))
             js_filename = self._regex_js_filename(response)
@@ -172,7 +172,7 @@ class AsyncDream(BaseDream):
             self.dream.token = result.get("idToken")
             return self.dream.token
 
-    class API(BaseDream.API["Dream"]):
+    class API(BaseDream.API["AsyncDream"]):
         async def create_task(self, text: str, 
                         style: int = 115, 
                         ratio: str = "old_vertical_ratio", 
@@ -201,7 +201,7 @@ class AsyncDream(BaseDream):
             response = response.text
             return response
 
-    class Profile(BaseDream.Profile["Dream"]):
+    class Profile(BaseDream.Profile["AsyncDream"]):
         async def gallery(self, 
                     task_id: str, is_public: bool = True, 
                     name: str = "", is_prompt_visible: str = True,
