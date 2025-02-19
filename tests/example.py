@@ -1,14 +1,18 @@
 import asyncio
-import time
 
-from wombo import AsyncDream
+from wombo import AsyncDream, Dream
 
 
 async def main() -> None:
+    dream = Dream()
     async_dream = AsyncDream()
-    start = time.perf_counter()
-    await asyncio.gather(*[async_dream.generate("anime waifu") for _ in range(20)])
-    print(time.perf_counter() - start)
+    # print(dream.style.get_styles())
+    # print(await async_dream.style.get_styles())
+
+    # print(await async_dream.auth._new_auth_key())
+    dream.auth._get_auth_key()
+    # print(dream.api.create_task("anime waifu"))
+    print(dream.generate("anime waifu"))
 
 
 asyncio.run(main())

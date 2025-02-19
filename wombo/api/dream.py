@@ -1,122 +1,50 @@
-import asyncio
-import time
-
-from httpx import AsyncClient, Client, Response
-
 from wombo.base import BaseDream
-from wombo.models import ArtStyleModel, TaskModel
 
+import time, asyncio
+from httpx import Response, Client, AsyncClient
+
+from wombo.models import TaskModel, ArtStyleModel
 
 class Dream(BaseDream):
     class Style(BaseDream.Style["Dream"]):
-        @property
-        def url(self) -> str:
-            response = self.dream._client.get(url=self.dream.base_url)
-            return self.regex(response)
-        
         def get_styles(self) -> ArtStyleModel:
-            response: Response = self.dream._client.get(self.url)
-            response = response.json().get("pageProps").get("artStyles")
-            return self.dream._get_model(ArtStyleModel, response)
+            res = self.dream._request("GET", url=self._regex(self._url))
+            return ArtStyleModel.model_validate(res.json().get("pageProps").get("artStyles"))
 
     class Auth(BaseDream.Auth["Dream"]):
-        def _get_js_filename(self) -> str:
-            response = self.dream._client.get(self.urls.get("js_filename"))
-            js_filename = self._regex_js_filename(response)
-            return js_filename[0]
-        
-        def _get_google_key(self) -> str:
-            js_filename = self._get_js_filename()
-            url = self.urls.get("google_key").format(js_filename=js_filename)
-            response = self.dream._client.get(url)
-            key = self._regex_google_key(response)
-            return key[0]
-        
-        def _get_auth_key(self) -> str:
-            if self.dream.token is not None:
-                return self.dream.token
-            response = self.dream._client.post(
-                self.urls.get("auth_key"),
-                params={"key": self._get_google_key()},
-                json={"returnSecureToken": True},
-            )
-            result = response.json()
-            self.dream.token = result.get("idToken")
-            return self.dream.token
+        def _get_auth_key(self, new: bool = False):
+            if self.dream._token is not None:
+                if not new:
+                    return self.dream._token
+            
+            res = self._get_js_filename()
+            js_filename = self._regex_js_filename(res)
 
-    class API(BaseDream.API["Dream"]):
-        def create_task(self, text: str, 
-                        style: int = 115, 
-                        ratio: str = "old_vertical_ratio", 
-                        premium: bool = False, 
-                        display_freq: int = 10) -> TaskModel:
-            response = self.dream._client.post(
-                self.url,
-                headers=self.dream._headers_gen(self.dream.auth._get_auth_key()),
-                json=self._data_gen(text, style, ratio, premium, display_freq),
-            )
-            response = response.json()
-            model: TaskModel = self.dream._get_model(TaskModel, response)
-            return model
+            url = self.urls.get("google_key").format(js_filename=js_filename[0])
+            res = self._get_google_key(url)
+            key = self._regex_google_key(res)
+            
+            res = self.dream._request("POST", 
+                                      url=self.urls.get("auth_key"),
+                                      params={"key": key},
+                                      json={"returnSecureToken": True})
+            res = res.json()
+            self.dream._token = res.get("idToken")
+            return self.dream._token
         
-        def check_task(self, task_id: str) -> TaskModel:
-            response = self.dream._client.get(f"{self.url}/{task_id}")
-            response = response.json()
-            model: TaskModel = self.dream._get_model(TaskModel, response)
-            return model
-
-        def tradingcard(self, task_id: str) -> str:
-            response = self.dream._client.post(
-                f"https://paint.api.wombo.ai/api/tradingcard/{task_id}",
-                headers=self.dream._headers_gen(self.dream.auth._get_auth_key())
-            )
-            response = response.text
-            return response
-
-    class Profile(BaseDream.Profile["Dream"]):
-        def gallery(self, 
-                    task_id: str, is_public: bool = True, 
-                    name: str = "", is_prompt_visible: str = True,
-                    tags: list = None) -> Response:
-            response = self.dream._client.post(
-                f"{self.url}/gallery",
-                headers=self.dream.api._headers_gen(self.dream.auth._get_auth_key()),
-                json={
-                    "task_id": task_id,
-                    "is_public": is_public,
-                    "name": name,
-                    "is_prompt_visible": is_prompt_visible,
-                    "tags": tags
-                }
-            )
-            response = response.json()
-            return response
-        
-        def delete(self, id_list: list) -> Response:
-            response = self.dream._client.post(
-                f"{self.url}/gallery/multi-delete",
-                headers=self.dream.api._headers_gen(self.dream.auth._get_auth_key()),
-                json={
-                    "id_list": id_list
-                }
-            )
-            return response
-
-        def edit(self, profile_bio: str = "", website_link: str = "") -> Response:
-            response = self.dream._client.patch(
-                f"{self.url}/users",
-                headers=self.dream.api._headers_gen(self.dream.auth._get_auth_key()),
-                json={
-                    "profile_bio": profile_bio,
-                    "website_link": website_link
-                }
-            )
-            return response
+        def _new_auth_key(self):
+            return self._get_auth_key(new=True)
 
     def __init__(self, token: str = None) -> None:
         super().__init__(token)
-        self._client = Client(follow_redirects=True, timeout=20)
+        self._client = Client(base_url=self._url, follow_redirects=True, timeout=20)
 
+    def _request[Model](self, method: str, model: Model = None, **kwargs) -> Response | Model:
+        res = self._client.request(method=method, **kwargs)
+        if model is not None:
+            return model.model_validate(res.json())
+        return res
+    
     def generate(self, text: str,
                  style: int = 115,
                  ratio: str = "old_vertical_ratio",
@@ -137,114 +65,44 @@ class Dream(BaseDream):
 
 class AsyncDream(BaseDream):
     class Style(BaseDream.Style["AsyncDream"]):
-        @property
-        async def url(self) -> str:
-            response = await self.dream._client.get(url=self.dream.base_url)
-            return self.regex(response)
-        
         async def get_styles(self) -> ArtStyleModel:
-            response: Response = await self.dream._client.get(await self.url)
-            response = response.json().get("pageProps").get("artStyles")
-            return self.dream._get_model(ArtStyleModel, response)
-
+            res = await self.dream._request("GET", url=self._regex(await self._url))
+            return ArtStyleModel.model_validate(res.json().get("pageProps").get("artStyles"))
+        
     class Auth(BaseDream.Auth["AsyncDream"]):
-        async def _get_js_filename(self) -> str:
-            response = await self.dream._client.get(self.urls.get("js_filename"))
-            js_filename = self._regex_js_filename(response)
-            return js_filename[0]
+        async def _get_auth_key(self, new: bool = False):
+            if self.dream._token is not None:
+                if not new:
+                    return self.dream._token
+            
+            res = await self._get_js_filename()
+            js_filename = self._regex_js_filename(res)
+
+            url = self.urls.get("google_key").format(js_filename=js_filename[0])
+            res = await self._get_google_key(url)
+            key = self._regex_google_key(res)
+            
+            res = await self.dream._request("POST", 
+                                      url=self.urls.get("auth_key"),
+                                      params={"key": key},
+                                      json={"returnSecureToken": True})
+            res = res.json()
+            self.dream._token = res.get("idToken")
+            return self.dream._token
+
+        def _new_auth_key(self):
+            return self._get_auth_key(new=True)
         
-        async def _get_google_key(self) -> str:
-            js_filename = await self._get_js_filename()
-            url = self.urls.get("google_key").format(js_filename=js_filename)
-            response = await self.dream._client.get(url)
-            key = self._regex_google_key(response)
-            return key[0]
-        
-        async def _get_auth_key(self) -> str:
-            if self.dream.token is not None:
-                return self.dream.token
-            response = await self.dream._client.post(
-                self.urls.get("auth_key"),
-                params={"key": await self._get_google_key()},
-                json={"returnSecureToken": True},
-            )
-            result = response.json()
-            self.dream.token = result.get("idToken")
-            return self.dream.token
-
-    class API(BaseDream.API["AsyncDream"]):
-        async def create_task(self, text: str, 
-                        style: int = 115, 
-                        ratio: str = "old_vertical_ratio", 
-                        premium: bool = False, 
-                        display_freq: int = 10) -> TaskModel:
-            response = await self.dream._client.post(
-                self.url,
-                headers=self.dream._headers_gen(await self.dream.auth._get_auth_key()),
-                json=self._data_gen(text, style, ratio, premium, display_freq),
-            )
-            response = response.json()
-            model: TaskModel = self.dream._get_model(TaskModel, response)
-            return model
-        
-        async def check_task(self, task_id: str) -> TaskModel:
-            response = await self.dream._client.get(f"{self.url}/{task_id}")
-            response = response.json()
-            model: TaskModel = self.dream._get_model(TaskModel, response)
-            return model
-
-        async def tradingcard(self, task_id: str) -> str:
-            response = await self.dream._client.post(
-                f"https://paint.api.wombo.ai/api/tradingcard/{task_id}",
-                headers=self.dream._headers_gen(await self.dream.auth._get_auth_key())
-            )
-            response = response.text
-            return response
-
-    class Profile(BaseDream.Profile["AsyncDream"]):
-        async def gallery(self, 
-                    task_id: str, is_public: bool = True, 
-                    name: str = "", is_prompt_visible: str = True,
-                    tags: list = None) -> Response:
-            response = await self.dream._client.post(
-                f"{self.url}/gallery",
-                headers=self.dream.api._headers_gen(await self.dream.auth._get_auth_key()),
-                json={
-                    "task_id": task_id,
-                    "is_public": is_public,
-                    "name": name,
-                    "is_prompt_visible": is_prompt_visible,
-                    "tags": tags
-                }
-            )
-            response = response.json()
-            return response
-        
-        async def delete(self, id_list: list) -> Response:
-            response = await self.dream._client.post(
-                f"{self.url}/gallery/multi-delete",
-                headers=self.dream.api._headers_gen(await self.dream.auth._get_auth_key()),
-                json={
-                    "id_list": id_list
-                }
-            )
-            return response
-
-        async def edit(self, profile_bio: str = "", website_link: str = "") -> Response:
-            response = await self.dream._client.patch(
-                f"{self.url}/users",
-                headers=self.dream.api._headers_gen(await self.dream.auth._get_auth_key()),
-                json={
-                    "profile_bio": profile_bio,
-                    "website_link": website_link
-                }
-            )
-            return response
-
     def __init__(self, token: str = None) -> None:
         super().__init__(token)
-        self._client = AsyncClient(follow_redirects=True, timeout=20)
+        self._client = AsyncClient(base_url=self._url, follow_redirects=True, timeout=20)
 
+    async def _request[Model](self, method: str, model: Model = None, **kwargs) -> Response | Model:
+        res = await self._client.request(method=method, **kwargs)
+        if model is not None:
+            return model.model_validate(res.json())
+        return res
+    
     async def generate(self, text: str,
                  style: int = 115,
                  ratio: str = "old_vertical_ratio",

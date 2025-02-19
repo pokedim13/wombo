@@ -1,3 +1,3 @@
-from .dream import AsyncDream, Dream
+from .dream import Dream, AsyncDream
 
 __all__ = ["Dream", "AsyncDream"]
