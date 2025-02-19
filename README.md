@@ -16,6 +16,7 @@
     <h2 align="center">Документация</h2>
     <details>
         <summary style="font-size: 18px; font-weight: bold;">Генерация изображения</summary>
+        ВАЖНО: После недавнего обновления, после создания экземпляра нужно обновлять токен с помощью Dream().auth._get_auth_key(). Если вы используете свой от аккаунта, это не требуется!
         <div style="margin-top: 10px; font-size: 16px;">
         <details style="padding-bottom: 10px;">
             <summary>может принимать следующие параметры</summary>
@@ -48,6 +49,9 @@ styles: = dream.styles.get_styles()
     </details>
     <details>
         <summary style="font-size: 18px; font-weight: bold;">API</summary>
+        <div>
+            ВАЖНО: После недавнего обновления, после создания экземпляра нужно обновлять токен с помощью Dream().auth._get_auth_key(). Если вы используете свой от аккаунта, это не требуется!
+        </div>
         <details style="padding-bottom: 10px;">
             <summary>может принимать следующие параметры</summary>
             <ul style="list-style-type: disc; padding-left: 20px;">
