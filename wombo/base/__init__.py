@@ -1,3 +1,3 @@
-from .base import BaseDream
+from .dream import BaseDream  # noqa: F401
 
-__all__ = ["BaseDream"]
+__all__ = ("BaseDream")

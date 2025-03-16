@@ -5,6 +5,7 @@ from httpx import Response, Client, AsyncClient
 
 from wombo.models import TaskModel, ArtStyleModel
 
+
 class Dream(BaseDream):
     class Style(BaseDream.Style["Dream"]):
         def get_styles(self) -> ArtStyleModel:
@@ -31,9 +32,6 @@ class Dream(BaseDream):
             res = res.json()
             self.dream._token = res.get("idToken")
             return self.dream._token
-        
-        def _new_auth_key(self):
-            return self._get_auth_key(new=True)
 
     def __init__(self, token: str = None) -> None:
         super().__init__(token)
@@ -52,10 +50,10 @@ class Dream(BaseDream):
                  display_freq: int = 10,
                  timeout: int = 60,
                  check_for: int = 3) -> TaskModel:
-        task = self.api.create_task(text=text, style=style, 
+        task = self.API.create_task(text=text, style=style, 
                                     ratio=ratio, premium=premium, display_freq=display_freq)
         for _ in range(timeout, 0, -check_for):
-            task = self.api.check_task(task.id)
+            task = self.API.check_task(task.id)
             if task.result is not None:
                 return task
             time.sleep(check_for)
@@ -68,8 +66,8 @@ class AsyncDream(BaseDream):
         async def get_styles(self) -> ArtStyleModel:
             res = await self.dream._request("GET", url=self._regex(await self._url))
             return ArtStyleModel.model_validate(res.json().get("pageProps").get("artStyles"))
-        
-    class Auth(BaseDream.Auth["AsyncDream"]):
+
+    class Auth(BaseDream.Auth["Dream"]):
         async def _get_auth_key(self, new: bool = False):
             if self.dream._token is not None:
                 if not new:
@@ -90,9 +88,6 @@ class AsyncDream(BaseDream):
             self.dream._token = res.get("idToken")
             return self.dream._token
 
-        def _new_auth_key(self):
-            return self._get_auth_key(new=True)
-        
     def __init__(self, token: str = None) -> None:
         super().__init__(token)
         self._client = AsyncClient(base_url=self._url, follow_redirects=True, timeout=20)
@@ -110,10 +105,10 @@ class AsyncDream(BaseDream):
                  display_freq: int = 10,
                  timeout: int = 60,
                  check_for: int = 3) -> TaskModel:
-        task = await self.api.create_task(text=text, style=style, 
+        task = await self.API.create_task(text=text, style=style, 
                                     ratio=ratio, premium=premium, display_freq=display_freq)
         for _ in range(timeout, 0, -check_for):
-            task = await self.api.check_task(task.id)
+            task = await self.API.check_task(task.id)
             if task.result is not None:
                 return task
             await asyncio.sleep(check_for)
