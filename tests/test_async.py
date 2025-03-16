@@ -1,13 +1,14 @@
 import pytest
 
-from wombo import AsyncDream, ArtStyleModel, TaskModel
+from wombo import AsyncDream, models
 
 dream = AsyncDream()
 
 @pytest.mark.asyncio
 async def test_generate()-> None:
-    assert isinstance(await dream.generate("anime waifu"), TaskModel)
+    await dream.Auth.new_auth_key()
+    assert isinstance(await dream.generate("anime waifu"), models.TaskModel)
 
 @pytest.mark.asyncio
 async def test_styles() -> None:
-    assert isinstance(await dream.style.get_styles(), ArtStyleModel)
+    assert isinstance(await dream.Style.get_styles(), models.ArtStyleModel)
