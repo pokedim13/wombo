@@ -1,9 +1,12 @@
 [project]
 name = "wombo"
-version = "0.5.0"
+version = "0.5.1"
 description = "Image generation module. I use the dream neural network from wombo for my work."
 authors = [
     {name = "Aleksey Baev",email = "skinxedovich@vk.com"}
+]
+maintainers = [
+  {name = "Aleksey Baev", email = "skinxedovich@vk.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
@@ -11,6 +14,14 @@ dependencies = [
     "httpx>=0.28.1",
     "pydantic>=2.10.6",
 ]
+license = {file = "LICENSE"}
+keywords = ["wombo", "dream", "API", "SDK"]
+
+[project.urls]
+Homepage = "https://github.com/pokedim13/wombo"
+Documentation = "https://github.com/pokedim13/wombo/tree/main/tests"
+Repository = "https://github.com/pokedim13/wombo.git"
+Issues = "https://github.com/pokedim13/wombo/issues"
 
 [dependency-groups]
 dev = [
