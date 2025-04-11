@@ -1,6 +1,6 @@
 [project]
 name = "wombo"
-version = "0.6.1"
+version = "0.7.0"
 description = "Image generation module. I use the dream neural network from wombo for my work."
 authors = [
     {name = "Aleksey Baev",email = "skinxedovich@vk.com"}
@@ -23,6 +23,12 @@ Documentation = "https://github.com/pokedim13/wombo"
 Repository = "https://github.com/pokedim13/wombo.git"
 Issues = "https://github.com/pokedim13/wombo/issues"
 
+[project.optional-dependencies]
+cli = [
+    "typer>=0.9.0",
+    "rich>=13.7.1",
+]
+
 [dependency-groups]
 dev = [
     "ruff>=0.11.0",
@@ -31,12 +37,6 @@ test = [
     "pytest>=8.3.5",
     "pytest-asyncio>=0.25.3",
     "python-dotenv>=1.0.1",
-]
-
-[project.optional-dependencies]
-cli = [
-    "typer>=0.9.0",
-    "rich>=13.7.1",
 ]
 
 [project.scripts]
@@ -48,12 +48,11 @@ build-backend = "hatchling.build"
 
 
 
+
 [[tool.uv.index]]
 name = "gitverse"
 url = "https://gitverse.ru/sweetdogs?tab=packages"
 publish-url = "https://gitverse.ru/api/packages/sweetdogs/pypi"
-
-
 
 [tool.ruff]
 line-length = 140
