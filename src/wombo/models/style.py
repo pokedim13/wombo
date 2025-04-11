@@ -2,12 +2,13 @@ from pydantic import BaseModel, Field, RootModel
 
 
 class StyleModel(BaseModel):
+	"""Модель стиля для генерации изображений."""
 	id: int
 	name: str
 	is_visible: bool
 	created_at: str
 	updated_at: str
-	deleted_at: None = None
+	deleted_at: str | None = None
 	photo_url: str
 	is_premium: bool
 	type_model: str = Field(alias="model_type")
@@ -17,4 +18,5 @@ class StyleModel(BaseModel):
 
 
 class ArtStyleModel(RootModel):
+	"""Коллекция моделей стилей."""
 	root: list[StyleModel]

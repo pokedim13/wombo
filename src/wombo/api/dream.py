@@ -1,9 +1,10 @@
+import asyncio
+import time
+
+from httpx import AsyncClient, Client, Response
+
 from wombo.base import BaseDream
-
-import time, asyncio
-from httpx import Response, Client, AsyncClient
-
-from wombo.models import TaskModel, ArtStyleModel
+from wombo.models import ArtStyleModel, TaskModel
 
 
 class Dream(BaseDream):
@@ -13,7 +14,7 @@ class Dream(BaseDream):
             return ArtStyleModel.model_validate(res.json().get("pageProps").get("artStyles"))
 
     class Auth(BaseDream.Auth["Dream"]):
-        def _get_auth_key(self, new: bool = False):
+        def _get_auth_key(self, new: bool = False) -> None:
             if self.dream._token is not None:
                 if not new:
                     return self.dream._token
@@ -68,7 +69,7 @@ class AsyncDream(BaseDream):
             return ArtStyleModel.model_validate(res.json().get("pageProps").get("artStyles"))
 
     class Auth(BaseDream.Auth["Dream"]):
-        async def _get_auth_key(self, new: bool = False):
+        async def _get_auth_key(self, new: bool = False) -> None:
             if self.dream._token is not None:
                 if not new:
                     return self.dream._token
@@ -103,7 +104,7 @@ class AsyncDream(BaseDream):
                  ratio: str = "old_vertical_ratio",
                  premium: bool = False, 
                  display_freq: int = 10,
-                 timeout: int = 60,
+                 timeout: int = 60, # noqa: ASYNC109
                  check_for: int = 3) -> TaskModel:
         task = await self.API.create_task(text=text, style=style, 
                                     ratio=ratio, premium=premium, display_freq=display_freq)
