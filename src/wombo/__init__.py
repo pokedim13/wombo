@@ -1,6 +1,6 @@
 from . import models
+from .api import AsyncDream, Dream
 from .base import BaseDream
-from .api import Dream, AsyncDream
 
 __version__ = "0.6.0"
 
