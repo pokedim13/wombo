@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class InputSpec(BaseModel):
+    """Спецификация входных данных для задачи генерации."""
     gen_type: str
     origin_device: str
     app_version: str
@@ -15,10 +16,12 @@ class InputSpec(BaseModel):
 
 
 class ResultItem(BaseModel):
+    """Результат выполнения задачи."""
     final: str
 
 
 class TaskModel(BaseModel):
+    """Модель задачи генерации изображения."""
     id: str
     user_id: str
     state: str
@@ -29,4 +32,4 @@ class TaskModel(BaseModel):
     is_nsfw: bool
     photo_url_list: list[str]
     generated_photo_keys: list[str]
-    result: ResultItem | None
+    result: ResultItem | None = None

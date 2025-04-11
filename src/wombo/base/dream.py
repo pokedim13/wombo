@@ -31,7 +31,7 @@ class BaseDream(ABC):
         urls = {
             "js_filename": "create",
             "google_key": "_next/static/chunks/pages/_app-{js_filename}.js",
-            "auth_key": "https://identitytoolkit.googleapis.com/v1/accounts:signUp"
+            "auth_key": "https://identitytoolkit.googleapis.com/v1/accounts:signUp",
         }
         def __init__(self, dream: T) -> None:
             self.dream = dream
@@ -60,7 +60,7 @@ class BaseDream(ABC):
         def new_auth_key(self) -> str:
             """Get new auth key."""
             return self._get_auth_key(new=True)
-
+        
     class API(ABC, Generic[T]):
         _url = "https://paint.api.wombo.ai/api/v2/tasks"
         def __init__(self, dream: T) -> None:
@@ -79,7 +79,7 @@ class BaseDream(ABC):
                     "aspect_ratio": ratio,
                     "prompt": text,
                     "style": style,
-                    "display_freq": display_freq
+                    "display_freq": display_freq,
                 },
             }
 
@@ -106,7 +106,7 @@ class BaseDream(ABC):
             return self.dream._request("POST", 
                                        url=f"https://paint.api.wombo.ai/api/tradingcard/{task_id}",
                                        headers=self.dream._headers_gen(self.dream._token))
-
+        
     class Profile(ABC, Generic[T]):
         """
         It was designed to work with a personalized profile, but this feature is not currently supported. 
@@ -120,8 +120,13 @@ class BaseDream(ABC):
         def gallery(self, 
                     task_id: str, is_public: bool = True, 
                     name: str = "", is_prompt_visible: str = True,
-                    tags: list = None) -> Response:
+                    tags: list = None, limit: int = None) -> Response:
             """Save the image in your profile. You will need a profile token."""
+            if limit is not None:
+                return self.dream._request("GET",
+                                           url=f"{self.dream._url}/{self.prefix}/gallery",
+                                           headers=self.dream._headers_gen(self.dream._token),
+                                           params={"limit": limit})
             return self.dream._request("POST",
                                        url=f"{self.dream._url}/{self.prefix}/gallery",
                                        headers=self.dream._headers_gen(self.dream._token),
@@ -130,7 +135,7 @@ class BaseDream(ABC):
                                             "is_public": is_public,
                                             "name": name,
                                             "is_prompt_visible": is_prompt_visible,
-                                            "tags": tags
+                                            "tags": tags,
                                         })
 
         def delete(self, id_list: list) -> Response:
@@ -139,7 +144,7 @@ class BaseDream(ABC):
                                        url=f"{self.dream._url}/{self.prefix}/gallery/multi-delete",
                                        headers=self.dream._headers_gen(self.dream._token),
                                        json={
-                                            "id_list": id_list
+                                            "id_list": id_list,
                                         })
 
         def edit(self, profile_bio: str = "", website_link: str = "") -> Response:
@@ -149,7 +154,7 @@ class BaseDream(ABC):
                                        headers=self.dream._headers_gen(self.dream._token),
                                        json={
                                             "profile_bio": profile_bio,
-                                            "website_link": website_link
+                                            "website_link": website_link,
                                         })
 
     _url = "https://dream.ai/"
@@ -166,7 +171,7 @@ class BaseDream(ABC):
             "authorization": f"bearer {auth_key}",
             "x-app-version": "WEB-2.0.0",
         }
-
+    
     @abstractmethod
     def _request[Model](self, method: str, model: Model = None, **kwargs) -> None:
         ...

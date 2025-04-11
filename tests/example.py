@@ -1,4 +1,4 @@
-from wombo import Dream, models
+from wombo import Dream
 
 dream = Dream()
 dream.Auth.new_auth_key()
