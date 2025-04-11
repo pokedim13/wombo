@@ -7,11 +7,20 @@
 ## Установка
 
 ```bash
-# С помощью uv
-uv pip install wombo
-
-# Или с помощью pip
+# Только библиотека
 pip install wombo
+
+# Установка с CLI интерфейсом
+pip install wombo[cli]
+
+# С помощью uv
+uv pip install wombo[cli]
+
+# Для разработки из исходников
+git clone https://github.com/pokedim13/wombo.git
+cd wombo
+uv sync --all-groups  # установка всех зависимостей
+uv pip install -e .   # установка библиотеки в режиме разработки
 ```
 
 ## Использование библиотеки
